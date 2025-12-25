@@ -17,11 +17,12 @@ IMPORTANT RULES:
 - Parameter names should reflect the *meaning* of the datapoint, not just restate the description verbatim.
 - Use standard health-economic conventions where possible (e.g. pfs_utility, death_prob_pps).
 - If a datapoint is ambiguous, still produce a parameter name, but add a short note explaining the ambiguity.
-- If you have any of the following datapoints IGNORE THESE, they will be handled separately:
-    Time horizon
-    Model cycle length
+- If you have any of the following datapoints IGNORE THESE, they will be handled separately through model settings:
+    Time horizon 
+    Model cycle length 
     Discount rate for QALYs
     Discount rate for costs
+    Anything to do with initial state occupancies
 
 INPUT DATAPOINTS:
 <datapoints>
@@ -135,28 +136,28 @@ Assistant:
     "standard_error": null
   },
   {
-    "parameter_name": "fusion_revision_prob_q1",
+    "parameter_name": "fusion_revision_prob_first_quarter",
     "value": 0.0169,
     "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
     "distribution": null,
     "standard_error": null
   },
   {
-    "parameter_name": "fusion_revision_prob_later",
+    "parameter_name": "fusion_revision_prob_subsequent_quarters",
     "value": 0.0022,
     "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
     "distribution": null,
     "standard_error": null
   },
   {
-    "parameter_name": "vbt_to_fusion_prob_q1",
+    "parameter_name": "vbt_to_fusion_prob_first_quarter",
     "value": 0.0118,
     "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
     "distribution": null,
     "standard_error": null
   },
   {
-    "parameter_name": "vbt_to_fusion_prob_later",
+    "parameter_name": "vbt_to_fusion_prob_subsequent_quarters",
     "value": 0.0019,
     "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
     "distribution": null,
@@ -175,7 +176,7 @@ Assistant:
     "description": "Postoperative VBT utility",
     "distribution": null,
     "standard_error": null,
-    "notes": "Value was provided as percentage (92.50%) but utility values are typically on 0-1 scale"
+    "notes": "Value was given as percentage (92.50%) but utility values are typically on 0-1 scale"
   },
   {
     "parameter_name": "postop_fusion_utility",
@@ -183,10 +184,10 @@ Assistant:
     "description": "Postoperative spinal fusion utility",
     "distribution": null,
     "standard_error": null,
-    "notes": "Value was provided as percentage (87.50%) but utility values are typically on 0-1 scale"
+    "notes": "Value was given as percentage (87.50%) but utility values are typically on 0-1 scale"
   },
   {
-    "parameter_name": "non_device_cost",
+    "parameter_name": "non_device_procedure_cost",
     "value": 28616.00,
     "description": "Non-device cost all procedures (index and revision)",
     "distribution": null,

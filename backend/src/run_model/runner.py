@@ -9,20 +9,20 @@ def run_markov_model(
     parameters: Dict[str, Any],
     health_states: List[str],
     treatments: List[str],
-    n_cycles: int,
+    cycle_length_years: float,
+    time_horizon_years: float,
+    disc_rate_cost_annual: float,
+    disc_rate_qaly_annual: float,
+    initial_occupancy: Dict[str, Any],
     discount_timing: str = "mid",
 
 ) -> Dict[str, Any]:
 
     idx = {s: i for i, s in enumerate(health_states)}
 
-    cycle_length = float(parameters["cycle_length"])
-    time_horizon = float(parameters["time_horizon"])
-    # TODO need to adjust units
-    disc_cost_annual = float(parameters["discount_rate_cost"])
-    disc_qaly_annual = float(parameters["discount_rate_qaly"])
-
     event_names = [e.event_name for e in event_specs if e.enabled]
+
+    n_cycles = int(time_horizon_years / cycle_length_years)
 
     # -------------------------
     # Helpers
@@ -30,11 +30,11 @@ def run_markov_model(
 
     def time_at_cycle_years(cycle: int) -> float:
         if discount_timing == "start":
-            return cycle * cycle_length
+            return cycle * cycle_length_years
         if discount_timing == "mid":
-            return (cycle + 0.5) * cycle_length
+            return (cycle + 0.5) * cycle_length_years
         if discount_timing == "end":
-            return (cycle + 1.0) * cycle_length
+            return (cycle + 1.0) * cycle_length_years
         raise ValueError("discount_timing must be 'start', 'mid', or 'end'")
 
     def df(rate_annual: float, t_years: float) -> float:
@@ -53,12 +53,12 @@ def run_markov_model(
     results = {
         "settings": {
             "health_states": health_states,
-            "cycle_length": cycle_length,
-            "time_horizon": time_horizon,
-            "n_cycles": n_cycles,
+            "cycle_length_years": cycle_length_years,
+            "time_horizon_years": time_horizon_years,
             "discount_timing": discount_timing,
-            "discount_rate_cost_annual": disc_cost_annual,
-            "discount_rate_qaly_annual": disc_qaly_annual,
+            "discount_rate_cost_annual": disc_rate_cost_annual,
+            "discount_rate_qaly_annual": disc_rate_qaly_annual,
+            "initial_occupancy": initial_occupancy,
         },
         "event_names": event_names,
         "treatments": treatments,
@@ -77,7 +77,7 @@ def run_markov_model(
         # ---- occupancy vectors ----
         s_by_cycle: List[np.ndarray] = []
         s0 = np.array(
-            [float(parameters["initial_occupancy"][trt].get(s, 0.0)) for s in health_states],
+            [float(initial_occupancy[trt].get(s, 0.0)) for s in health_states],
             dtype=float,
         )
         s_by_cycle.append(s0)
@@ -123,13 +123,13 @@ def run_markov_model(
 
             s_t = s_by_cycle[cycle]
             t_years = time_at_cycle_years(cycle)
-            df_cost = df(disc_cost_annual, t_years)
-            df_qaly = df(disc_qaly_annual, t_years)
+            df_cost = df(disc_rate_cost_annual, t_years)
+            df_qaly = df(disc_rate_qaly_annual, t_years)
 
             # ---- time spent ----
             ts_u, ts_d = {}, {}
             for i, st in enumerate(health_states):
-                ly = float(s_t[i]) * cycle_length
+                ly = float(s_t[i]) * cycle_length_years
                 ts_u[st] = ly
                 ts_d[st] = ly
 
@@ -147,6 +147,8 @@ def run_markov_model(
                 treatment=trt,
                 params=parameters,
                 health_states=health_states,
+                cycle_length_years=cycle_length_years,
+                time_horizon_years=time_horizon_years,
             )
 
             P_t = validate_transition_matrix(
@@ -162,6 +164,8 @@ def run_markov_model(
                 cycle=cycle,
                 params=parameters,
                 event_specs=event_specs,
+                cycle_length_years=cycle_length_years,
+                time_horizon_years=time_horizon_years,
             )
 
             per_event = impacts["per_event_impacts"]

@@ -11,6 +11,8 @@ class TransitionMatrixContext:
     treatment: Treatment
     params: Dict[str, Any]
     health_states: List[State]
+    cycle_length_years: Any
+    time_horizon_years: Any
 
 
 @dataclass(frozen=True)
@@ -19,6 +21,8 @@ class EventContext:
     treatment: Treatment
     params: Dict[str, Any]
     health_states: List[State]
+    cycle_length_years: Any
+    time_horizon_years: Any
 
 
 @dataclass
@@ -157,6 +161,8 @@ def compile_impacts(
     cycle: int,
     params: Dict[str, Any],
     event_specs: List[EventSpec],
+    cycle_length_years: Any,
+    time_horizon_years: Any,
 ) -> Dict[str, Any]:
     """
     Returns:
@@ -168,6 +174,8 @@ def compile_impacts(
         treatment=treatment,
         params=params,
         health_states=health_states,
+        cycle_length_years=cycle_length_years,
+        time_horizon_years=time_horizon_years,
     )
 
     total_impact = initialise_impact(health_states)

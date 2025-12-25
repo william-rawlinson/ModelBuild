@@ -194,7 +194,7 @@ def generate_health_states_and_initial_occupancy(
 
 if __name__ == "__main__":
 
-    health_states = generate_health_states_and_initial_occupancy(model_description=DUMMY_MODEL_SPEC_1,
+    health_states_out = generate_health_states_and_initial_occupancy(model_description=DUMMY_MODEL_SPEC_1,
                                            available_parameters=DUMMY_MODEL_PARAMETERS_1,
                                            treatments=DUMMY_TREATMENTS_1)
 

@@ -13,6 +13,8 @@ We are going to work together to produce a transition matrix generation function
     - context.cycle (int)
     - context.treatment (string)
     - context.params (dict of parameters, see <available_parameters></available_parameters> below)
+    - context.cycle_length_years (float) variable with cycle length in years
+    - context.time_horizon_years (float) variable with time horizon in years
 - Do NOT hard-code parameter values, always use the parameters from the context.params dictionary
 - Use this helper to initialise the transition matrix
     transition_matrix = NamedTransitionMatrix(context.health_states)
@@ -59,25 +61,25 @@ See provided data.
     "distribution": null,
     "standard_error": null
   },
-  "fusion_revision_prob_q1": {
+  "fusion_revision_prob_first_quarter": {
     "value": 0.0169,
     "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
     "distribution": null,
     "standard_error": null
   },
-  "fusion_revision_prob_later": {
+  "fusion_revision_prob_subsequent_quarters": {
     "value": 0.0022,
     "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
     "distribution": null,
     "standard_error": null
   },
-  "vbt_to_fusion_prob_q1": {
+  "vbt_to_fusion_prob_first_quarter": {
     "value": 0.0118,
     "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
     "distribution": null,
     "standard_error": null
   },
-  "vbt_to_fusion_prob_later": {
+  "vbt_to_fusion_prob_subsequent_quarters": {
     "value": 0.0019,
     "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
     "distribution": null,
@@ -101,7 +103,7 @@ See provided data.
     "distribution": null,
     "standard_error": null
   },
-  "non_device_cost": {
+  "non_device_procedure_cost": {
     "value": 28616.0,
     "description": "Non-device cost all procedures (index and revision)",
     "distribution": null,
@@ -124,67 +126,12 @@ See provided data.
     "description": "VBT revision device cost",
     "distribution": null,
     "standard_error": null
-  },
-  "cycle_length": {
-    "value": 3,
-    "description": "Model cycle length months",
-    "distribution": null,
-    "standard_error": null
-  },
-  "time_horizon": {
-    "value": 15,
-    "description": "Model time horizon years",
-    "distribution": null,
-    "standard_error": null
-  },
-  "discount_rate_qaly": {
-    "value": 0.05,
-    "description": "Yearly discount rate for QALYs",
-    "distribution": null,
-    "standard_error": null
-  },
-  "discount_rate_cost": {
-    "value": 0.05,
-    "description": "Yearly discount rate for costs",
-    "distribution": null,
-    "standard_error": null
-  },
-  "initial_occupancy": {
-    "value": {
-      "VBT": {
-        "Spinal Fusion Index Procedure": 0,
-        "VBT Index Procedure": 1,
-        "Postoperative VBT": 0,
-        "Postoperative Fusion": 0,
-        "VBT Revision": 0,
-        "Fusion Revision 1": 0,
-        "Postoperative Fusion Revision 1": 0,
-        "Fusion Revision 2": 0,
-        "Postoperative Fusion Revision 2": 0,
-        "Ineligible For Further Fusion Revision": 0
-      },
-      "Fusion": {
-        "Spinal Fusion Index Procedure": 1,
-        "VBT Index Procedure": 0,
-        "Postoperative VBT": 0,
-        "Postoperative Fusion": 0,
-        "VBT Revision": 0,
-        "Fusion Revision 1": 0,
-        "Postoperative Fusion Revision 1": 0,
-        "Fusion Revision 2": 0,
-        "Postoperative Fusion Revision 2": 0,
-        "Ineligible For Further Fusion Revision": 0
-      }
-    },
-    "description": "List of initial state occupancies",
-    "distribution": null,
-    "standard_error": null
   }
 }
 </available_model_parameters>
 
 <model_health_states>
-['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Fusion Revision 2', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+['VBT_Index', 'PostOp_VBT__tunnel_0', 'PostOp_VBT__long_term', 'VBT_Revision', 'Fusion_Index', 'PostOp_Fusion_Index__tunnel_0', 'PostOp_Fusion_Index__long_term', 'Fusion_Revision_1', 'PostOp_Fusion_Revision_1__tunnel_0', 'PostOp_Fusion_Revision_1__long_term', 'Fusion_Revision_2', 'PostOp_Fusion_Revision_2__tunnel_0', 'PostOp_Fusion_Revision_2__long_term', 'Ineligible_Fusion']
 </model_health_states>
 
 Once you have understood all these instructions, and the model we are building, please acknowledge this. Then, I will follow up with the instructions for building the transition matrix generation function. 
@@ -192,22 +139,16 @@ Once you have understood all these instructions, and the model we are building, 
 
 ================================================================================
 Assistant:
-I understand the instructions and the model we are building. This is a Markov cohort model for comparing VBT (anterior vertebral body tethering) versus spinal fusion for pediatric patients with idiopathic scoliosis.
+I've reviewed all the instructions and understand the model we're building. This is a cohort Markov model for comparing VBT (anterior vertebral body tethering) versus spinal fusion for pediatric patients with idiopathic scoliosis.
 
-The model has 10 health states:
-1. Spinal Fusion Index Procedure
-2. VBT Index Procedure
-3. Postoperative VBT
-4. Postoperative Fusion
-5. VBT Revision
-6. Fusion Revision 1
-7. Postoperative Fusion Revision 1
-8. Fusion Revision 2
-9. Postoperative Fusion Revision 2
-10. Ineligible For Further Fusion Revision
+The model has 14 health states that track patients through different surgical procedures and post-operative states. The key transitions include:
+- Patients starting in either VBT or Fusion index states
+- VBT patients can experience revision or transition to fusion
+- Fusion patients can experience up to two revisions before becoming ineligible
+- There are "tunnel" states to model different transition probabilities in the first quarter after procedures
 
-The model has a 15-year time horizon with 3-month cycles, and I'll need to create a transition matrix generation function that calculates transition probabilities between these states for each cycle and treatment arm.
+I understand I need to create a `get_transition_matrix` function that will calculate transition probabilities between these states for any given cycle and treatment arm, using the parameters provided in the context.
 
-I'm ready to build the transition matrix generation function according to the provided guidance.
+I'm ready to proceed with building the transition matrix generation function.
 
 ================================================================================

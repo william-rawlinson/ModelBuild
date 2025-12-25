@@ -217,6 +217,7 @@ def build_events_workflow(
             {
                 "event_name": event_name,
                 "final_code": final_code.strip(),
+                "metadata": metadata
             }
         )
 
@@ -225,7 +226,6 @@ def build_events_workflow(
     return {
         "event_recommendations": event_recommendations,
         "event_codes": event_codes,
-        "event_metadatas": event_metadatas,
         "additional_parameters_all": additional_parameters_all,
         "model_parameters_augmented": model_parameters_aug,
         "history": history,

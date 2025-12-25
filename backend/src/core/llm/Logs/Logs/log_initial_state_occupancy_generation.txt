@@ -78,25 +78,25 @@ See provided data.
     "distribution": null,
     "standard_error": null
   },
-  "fusion_revision_prob_q1": {
+  "fusion_revision_prob_first_quarter": {
     "value": 0.0169,
     "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
     "distribution": null,
     "standard_error": null
   },
-  "fusion_revision_prob_q2plus": {
+  "fusion_revision_prob_subsequent_quarters": {
     "value": 0.0022,
     "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
     "distribution": null,
     "standard_error": null
   },
-  "vbt_to_fusion_prob_q1": {
+  "vbt_to_fusion_prob_first_quarter": {
     "value": 0.0118,
     "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
     "distribution": null,
     "standard_error": null
   },
-  "vbt_to_fusion_prob_q2plus": {
+  "vbt_to_fusion_prob_subsequent_quarters": {
     "value": 0.0019,
     "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
     "distribution": null,
@@ -120,7 +120,7 @@ See provided data.
     "distribution": null,
     "standard_error": null
   },
-  "non_device_cost": {
+  "non_device_procedure_cost": {
     "value": 28616.0,
     "description": "Non-device cost all procedures (index and revision)",
     "distribution": null,
@@ -150,33 +150,34 @@ See provided data.
 
 ================================================================================
 Assistant:
-I'll design the minimal set of health states for this Markov model based on the description and available parameters.
+I'll design a minimal set of health states for this Markov model based on the description and available parameters.
 
 ## Rationale
 
-After analyzing the model description and parameters, I propose the following state structure:
+Looking at the model description and parameters, I need to capture:
 
-1. **Index procedures**: We need separate states for VBT and fusion index procedures as they have different costs and transition probabilities.
+1. Different surgical procedures (VBT and fusion)
+2. Post-operative states with different utilities
+3. Revision states
+4. Time-dependent transition probabilities (first quarter vs. subsequent quarters)
 
-2. **Postoperative states**: We need tunnel states for both VBT and fusion postoperative periods because:
-   - Different transition probabilities exist for the first quarter (Q1) vs. subsequent quarters (Q2+) after procedures
-   - This time-dependency requires tunnel states to accurately model the transition probabilities
+The key insight is that we need tunnel states for the post-operative periods because transition probabilities differ between the first quarter and subsequent quarters after procedures. Specifically:
+- After VBT, the probability of transitioning to fusion differs in the first quarter vs. subsequent quarters
+- After fusion, the probability of revision differs in the first quarter vs. subsequent quarters
 
-3. **Revision states**: We need to track up to two fusion revisions as specified in the model description, with appropriate tunnel states for the same reason as above.
+I'll create tunnel states for these post-operative periods to accurately model these time-dependent transitions.
 
-4. **Ineligible fusion**: An absorbing state for patients who would require a third fusion revision.
+The model also mentions up to two fusion revisions before becoming ineligible for further revisions, so I'll include states for each revision level.
 
-5. **VBT revision**: A state for patients undergoing VBT revision.
-
-The tunnel states are necessary because the parameters explicitly specify different transition probabilities for the first quarter after a procedure versus subsequent quarters (fusion_revision_prob_q1 vs fusion_revision_prob_q2plus, and vbt_to_fusion_prob_q1 vs vbt_to_fusion_prob_q2plus). Without tunnel states, we couldn't accurately model these time-dependent transition probabilities.
+## Health States
 
 <model_health_states>
 [
   "VBT_Index",
-  "Fusion_Index",
   "PostOp_VBT__tunnel_0",
   "PostOp_VBT__long_term",
   "VBT_Revision",
+  "Fusion_Index",
   "PostOp_Fusion_Index__tunnel_0",
   "PostOp_Fusion_Index__long_term",
   "Fusion_Revision_1",
@@ -250,24 +251,20 @@ The list of modelled treatments is provided below.
 
 ================================================================================
 Assistant:
-Based on the model description and health states, I'll define the initial health state occupancies for both treatment arms.
+Based on the model description, patients enter the model in either the VBT index procedure or spinal fusion index procedure health state, depending on which treatment arm they're in.
 
-For this model, patients enter in either the VBT index procedure state or the Fusion index procedure state, depending on which treatment arm they're in. This is clearly stated in the model description: "Patients enter the model in the spinal fusion or VBT index procedure health state depending on treatment arm."
+For the VBT treatment arm, all patients should start in the "VBT_Index" state, as this represents the initial procedure.
 
-Therefore:
-- For the VBT treatment arm: 100% of patients should start in the "VBT_Index" state
-- For the Fusion treatment arm: 100% of patients should start in the "Fusion_Index" state
-
-All other states should have zero initial occupancy.
+For the Fusion treatment arm, all patients should start in the "Fusion_Index" state, as this represents the initial fusion procedure.
 
 <initial_state_occupancy>
 {
   "VBT": {
     "VBT_Index": 1.0,
-    "Fusion_Index": 0.0,
     "PostOp_VBT__tunnel_0": 0.0,
     "PostOp_VBT__long_term": 0.0,
     "VBT_Revision": 0.0,
+    "Fusion_Index": 0.0,
     "PostOp_Fusion_Index__tunnel_0": 0.0,
     "PostOp_Fusion_Index__long_term": 0.0,
     "Fusion_Revision_1": 0.0,
@@ -280,10 +277,10 @@ All other states should have zero initial occupancy.
   },
   "Fusion": {
     "VBT_Index": 0.0,
-    "Fusion_Index": 1.0,
     "PostOp_VBT__tunnel_0": 0.0,
     "PostOp_VBT__long_term": 0.0,
     "VBT_Revision": 0.0,
+    "Fusion_Index": 1.0,
     "PostOp_Fusion_Index__tunnel_0": 0.0,
     "PostOp_Fusion_Index__long_term": 0.0,
     "Fusion_Revision_1": 0.0,

@@ -10,6 +10,8 @@ from backend.files.file_paths import snapshot_dir
 
 GLOBALS_FOR_CODEGEN = {
     "np": np,
+    "math": math,
+
     "TransitionMatrixContext": TransitionMatrixContext,
     "NamedTransitionMatrix": NamedTransitionMatrix,
     "EventContext": EventContext,
@@ -36,7 +38,6 @@ def run_model_from_bundle(
     """
     # 1) flatten parameters
     parameters = flatten_parameters(bundle["parameters"])
-    n_cycles = bundle["n_cycles"]
 
     # 3) compile code to runtime objects
     build_transition_matrix_fn = compile_transition_fn(transition_code=bundle["transition_matrix_code"],
@@ -53,7 +54,11 @@ def run_model_from_bundle(
         parameters=parameters,
         health_states=bundle["health_states"],
         treatments=bundle["treatments"],
-        n_cycles=n_cycles,
+        cycle_length_years=bundle["cycle_length_years"],
+        time_horizon_years=bundle["time_horizon_years"],
+        disc_rate_cost_annual=bundle["disc_rate_cost_annual"],
+        disc_rate_qaly_annual =bundle["disc_rate_qaly_annual"],
+        initial_occupancy=bundle["initial_occupancy"],
         discount_timing=discount_timing,
     )
 

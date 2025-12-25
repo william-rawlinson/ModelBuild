@@ -16,6 +16,8 @@ NamedTransitionMatrix
     - context.cycle (int)
     - context.treatment (string)
     - context.params (dict of parameters, see <available_parameters></available_parameters> below)
+    - context.cycle_length_years (float) variable with cycle length in years
+    - context.time_horizon_years (float) variable with time horizon in years
 - Do NOT hard-code parameter values, always use the parameters from the context.params dictionary
 - Use this helper to initialise the transition matrix
     transition_matrix = NamedTransitionMatrix(context.health_states)

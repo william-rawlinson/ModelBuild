@@ -14,11 +14,12 @@ IMPORTANT RULES:
 - Parameter names should reflect the *meaning* of the datapoint, not just restate the description verbatim.
 - Use standard health-economic conventions where possible (e.g. pfs_utility, death_prob_pps).
 - If a datapoint is ambiguous, still produce a parameter name, but add a short note explaining the ambiguity.
-- If you have any of the following datapoints IGNORE THESE, they will be handled separately:
-    Time horizon
-    Model cycle length
+- If you have any of the following datapoints IGNORE THESE, they will be handled separately through model settings:
+    Time horizon 
+    Model cycle length 
     Discount rate for QALYs
     Discount rate for costs
+    Anything to do with initial state occupancies
 
 INPUT DATAPOINTS:
 <datapoints>
