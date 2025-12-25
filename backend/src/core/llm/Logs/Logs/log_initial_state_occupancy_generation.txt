@@ -1,0 +1,300 @@
+
+================================================================================
+User:
+We are going to work together to design the health states for a cohort Markov model.
+Your task is to propose a suitable list of health states based on the model description and the available parameters.
+
+Key objective: MINIMAL state space
+- Your primary goal is to propose the smallest (minimal) set of health states that can faithfully represent the model
+  described and can be parameterised using the available parameters.
+- Do NOT add states “just in case”. Only add a state if it is required to represent different costs, QALYs, or transition
+  structure that cannot be represented otherwise.
+
+Respect the model description, but do not be constrained by it
+- The model description may explicitly suggest a set of health states (e.g., “use states A, B, C”).
+- If that proposed set is not sufficient or is mismatched with the required costs/QALYs/transitions, you MUST modify it.
+  It is acceptable to add, remove, merge, or rename states to achieve a coherent and minimal state space, but only if there is a good reason to do so.
+
+When tunnel states are required (important)
+- If costs or QALYs depend on “time since entering” a state(e.g., higher cost in the second cycle after surgery, different
+  utility in the third year post-event, or different transition risk in cycles 2+ after an event), a standard Markov
+  state will not be sufficient. 
+- In those cases you should introduce TUNNEL STATES:
+  - Tunnel states are time-limited states that represent being in a condition for a specific duration since entry.
+  - Patients pass through them sequentially (e.g., PostOp_0 → PostOp_1 → PostOp_LongTerm), enabling different per-cycle
+    occupancy costs/QALYs and/or different transition risks by time-since-entry.
+  - Use tunnel states only when necessary (i.e., when time-since-entry changes costs/QALYs/transition behavior).
+- IMPORTANTLY, we do not need tunnel states for costs / QALYs that are incurred upon transition to a state, these can be handled by simply associating cost and QALY impacts with transitions
+
+Tunnel state naming convention (use this exactly)
+- If a state requires tunnel structure, use:
+    "<BASE_STATE>__tunnel_<k>"
+  for k = 0, 1, 2, ... for sequential cycles after entry, and then a final non-tunnel long-term state:
+    "<BASE_STATE>__long_term"
+Examples:
+- "PostOp__tunnel_0", "PostOp__tunnel_1", "PostOp__long_term"
+- "Revision__tunnel_0", "Revision__long_term"
+
+Output requirements
+1) Provide a short rationale explaining:
+   - why the proposed states are sufficient and minimal
+   - where (if anywhere) tunnel states were required and why
+2) Return ONLY the final ordered list of health state names inside:
+   <model_health_states></model_health_states>
+   Use a JSON array of strings inside the tags.
+
+Here is the model description and available parameters:
+
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+</model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q2plus": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q2plus": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+
+================================================================================
+Assistant:
+I'll design the minimal set of health states for this Markov model based on the description and available parameters.
+
+## Rationale
+
+After analyzing the model description and parameters, I propose the following state structure:
+
+1. **Index procedures**: We need separate states for VBT and fusion index procedures as they have different costs and transition probabilities.
+
+2. **Postoperative states**: We need tunnel states for both VBT and fusion postoperative periods because:
+   - Different transition probabilities exist for the first quarter (Q1) vs. subsequent quarters (Q2+) after procedures
+   - This time-dependency requires tunnel states to accurately model the transition probabilities
+
+3. **Revision states**: We need to track up to two fusion revisions as specified in the model description, with appropriate tunnel states for the same reason as above.
+
+4. **Ineligible fusion**: An absorbing state for patients who would require a third fusion revision.
+
+5. **VBT revision**: A state for patients undergoing VBT revision.
+
+The tunnel states are necessary because the parameters explicitly specify different transition probabilities for the first quarter after a procedure versus subsequent quarters (fusion_revision_prob_q1 vs fusion_revision_prob_q2plus, and vbt_to_fusion_prob_q1 vs vbt_to_fusion_prob_q2plus). Without tunnel states, we couldn't accurately model these time-dependent transition probabilities.
+
+<model_health_states>
+[
+  "VBT_Index",
+  "Fusion_Index",
+  "PostOp_VBT__tunnel_0",
+  "PostOp_VBT__long_term",
+  "VBT_Revision",
+  "PostOp_Fusion_Index__tunnel_0",
+  "PostOp_Fusion_Index__long_term",
+  "Fusion_Revision_1",
+  "PostOp_Fusion_Revision_1__tunnel_0",
+  "PostOp_Fusion_Revision_1__long_term",
+  "Fusion_Revision_2",
+  "PostOp_Fusion_Revision_2__tunnel_0",
+  "PostOp_Fusion_Revision_2__long_term",
+  "Ineligible_Fusion"
+]
+</model_health_states>
+
+================================================================================
+User:
+We are now going to define the INITIAL HEALTH STATE OCCUPANCIES for the cohort
+at the start of the Markov model (cycle 0).
+
+Your task is to specify, for each treatment arm, the proportion of the cohort that begins in each health state.
+
+Important principles
+- Initial occupancies must form a valid probability distribution for EACH treatment:
+    - All proportions must be between 0 and 1
+    - Proportions must sum to exactly 1.0 for each treatment
+- Initial occupancies may differ by treatment arm if this is clinically or logically implied
+  (e.g., different index procedures, eligibility criteria, or starting pathways).
+- If there is no strong justification for differences, it is acceptable (and often preferred)
+  for treatments to share the same initial distribution.
+
+Respect the model, but prioritise coherence
+- The model description may explicitly state where patients start (e.g., “all patients begin in PFS”).
+- If that statement is inconsistent with the final set of health states (e.g., tunnel states, procedural states),
+  you MUST adapt the initial occupancies accordingly.
+- In particular:
+    - If tunnel states exist that represent an index event or immediate post-event period,
+      it is often appropriate for patients to start in the earliest tunnel state (e.g., "__tunnel_0")
+      rather than a long-term state.
+    - Long-term states (e.g., "__long_term") should generally NOT have initial occupancy unless
+      explicitly justified.
+
+Minimality and realism
+- Do NOT spread small probabilities across many states unless necessary.
+- In most models, the majority (or all) of the cohort should start in a single clinically meaningful state.
+- Use additional non-zero occupancies only when clearly required by the model structure.
+
+Output requirements
+- Return a single dictionary inside:
+    <initial_state_occupancy></initial_state_occupancy>
+- The dictionary must be of the form:
+    {
+        "<TREATMENT_NAME>": {
+            "<HEALTH_STATE>": <proportion>,
+            ...
+        },
+        ...
+    }
+- Every health state must appear for every treatment (use 0.0 where appropriate).
+- Use numeric values (floats), not strings.
+- Do NOT include explanatory text inside the tags.
+
+You may include brief reasoning outside the tags if helpful.
+
+The list of modelled treatments is provided below.
+
+<treatments>
+[
+  "VBT",
+  "Fusion"
+]
+</treatments>
+
+
+================================================================================
+Assistant:
+Based on the model description and health states, I'll define the initial health state occupancies for both treatment arms.
+
+For this model, patients enter in either the VBT index procedure state or the Fusion index procedure state, depending on which treatment arm they're in. This is clearly stated in the model description: "Patients enter the model in the spinal fusion or VBT index procedure health state depending on treatment arm."
+
+Therefore:
+- For the VBT treatment arm: 100% of patients should start in the "VBT_Index" state
+- For the Fusion treatment arm: 100% of patients should start in the "Fusion_Index" state
+
+All other states should have zero initial occupancy.
+
+<initial_state_occupancy>
+{
+  "VBT": {
+    "VBT_Index": 1.0,
+    "Fusion_Index": 0.0,
+    "PostOp_VBT__tunnel_0": 0.0,
+    "PostOp_VBT__long_term": 0.0,
+    "VBT_Revision": 0.0,
+    "PostOp_Fusion_Index__tunnel_0": 0.0,
+    "PostOp_Fusion_Index__long_term": 0.0,
+    "Fusion_Revision_1": 0.0,
+    "PostOp_Fusion_Revision_1__tunnel_0": 0.0,
+    "PostOp_Fusion_Revision_1__long_term": 0.0,
+    "Fusion_Revision_2": 0.0,
+    "PostOp_Fusion_Revision_2__tunnel_0": 0.0,
+    "PostOp_Fusion_Revision_2__long_term": 0.0,
+    "Ineligible_Fusion": 0.0
+  },
+  "Fusion": {
+    "VBT_Index": 0.0,
+    "Fusion_Index": 1.0,
+    "PostOp_VBT__tunnel_0": 0.0,
+    "PostOp_VBT__long_term": 0.0,
+    "VBT_Revision": 0.0,
+    "PostOp_Fusion_Index__tunnel_0": 0.0,
+    "PostOp_Fusion_Index__long_term": 0.0,
+    "Fusion_Revision_1": 0.0,
+    "PostOp_Fusion_Revision_1__tunnel_0": 0.0,
+    "PostOp_Fusion_Revision_1__long_term": 0.0,
+    "Fusion_Revision_2": 0.0,
+    "PostOp_Fusion_Revision_2__tunnel_0": 0.0,
+    "PostOp_Fusion_Revision_2__long_term": 0.0,
+    "Ineligible_Fusion": 0.0
+  }
+}
+</initial_state_occupancy>
+
+================================================================================

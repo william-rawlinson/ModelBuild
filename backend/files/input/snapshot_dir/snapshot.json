@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "model_description": "Decision Problem\nDecision problem statement\nThe aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).\nTime horizon, cycle length, and discounting\n15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.\nTreatment strategies\nIntervention: VBT, comparator: spinal fusion.\nHealth states\nPatients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. \nTransition probabilities\nPatients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. \nCosts\nIndex procedure costs\nSee provided data. For first index procedures, should be upon entry to the model. \nRevision procedure costs\nSee provided data\n\n\n\nUtilities\nHealth state utilities\nSee provided data.",
+  "health_states": [
+    "Spinal Fusion Index Procedure",
+    "VBT Index Procedure",
+    "Postoperative VBT",
+    "Postoperative Fusion",
+    "VBT Revision",
+    "Fusion Revision 1",
+    "Postoperative Fusion Revision 1",
+    "Fusion Revision 2",
+    "Postoperative Fusion Revision 2",
+    "Ineligible For Further Fusion Revision"
+  ],
+  "treatments": [
+    "VBT",
+    "Fusion"
+  ],
+  "n_cycles": 60,
+  "parameters_rich": {
+    "vbt_revision_prob_2yr": {
+      "value": 0.0602,
+      "description": "2-year probability of VBT revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "fusion_revision_prob_q1": {
+      "value": 0.0169,
+      "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+      "distribution": null,
+      "standard_error": null
+    },
+    "fusion_revision_prob_later": {
+      "value": 0.0022,
+      "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+      "distribution": null,
+      "standard_error": null
+    },
+    "vbt_to_fusion_prob_q1": {
+      "value": 0.0118,
+      "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+      "distribution": null,
+      "standard_error": null
+    },
+    "vbt_to_fusion_prob_later": {
+      "value": 0.0019,
+      "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+      "distribution": null,
+      "standard_error": null
+    },
+    "preop_utility": {
+      "value": 0.783,
+      "description": "Preoperative VBT and spinal fusion utility",
+      "distribution": null,
+      "standard_error": null
+    },
+    "postop_vbt_utility": {
+      "value": 0.925,
+      "description": "Postoperative VBT utility",
+      "distribution": null,
+      "standard_error": null
+    },
+    "postop_fusion_utility": {
+      "value": 0.875,
+      "description": "Postoperative spinal fusion utility",
+      "distribution": null,
+      "standard_error": null
+    },
+    "non_device_cost": {
+      "value": 28616.0,
+      "description": "Non-device cost all procedures (index and revision)",
+      "distribution": null,
+      "standard_error": null
+    },
+    "fusion_device_cost": {
+      "value": 17200.0,
+      "description": "Fusion device cost",
+      "distribution": null,
+      "standard_error": null
+    },
+    "vbt_index_device_cost": {
+      "value": 50615.0,
+      "description": "Index VBT device cost",
+      "distribution": null,
+      "standard_error": null
+    },
+    "vbt_revision_device_cost": {
+      "value": 8804.0,
+      "description": "VBT revision device cost",
+      "distribution": null,
+      "standard_error": null
+    },
+    "cycle_length": {
+      "value": 3,
+      "description": "Model cycle length months",
+      "distribution": null,
+      "standard_error": null
+    },
+    "time_horizon": {
+      "value": 15,
+      "description": "Model time horizon years",
+      "distribution": null,
+      "standard_error": null
+    },
+    "discount_rate_qaly": {
+      "value": 0.05,
+      "description": "Yearly discount rate for QALYs",
+      "distribution": null,
+      "standard_error": null
+    },
+    "discount_rate_cost": {
+      "value": 0.05,
+      "description": "Yearly discount rate for costs",
+      "distribution": null,
+      "standard_error": null
+    },
+    "initial_occupancy": {
+      "value": {
+        "VBT": {
+          "Spinal Fusion Index Procedure": 0,
+          "VBT Index Procedure": 1,
+          "Postoperative VBT": 0,
+          "Postoperative Fusion": 0,
+          "VBT Revision": 0,
+          "Fusion Revision 1": 0,
+          "Postoperative Fusion Revision 1": 0,
+          "Fusion Revision 2": 0,
+          "Postoperative Fusion Revision 2": 0,
+          "Ineligible For Further Fusion Revision": 0
+        },
+        "Fusion": {
+          "Spinal Fusion Index Procedure": 1,
+          "VBT Index Procedure": 0,
+          "Postoperative VBT": 0,
+          "Postoperative Fusion": 0,
+          "VBT Revision": 0,
+          "Fusion Revision 1": 0,
+          "Postoperative Fusion Revision 1": 0,
+          "Fusion Revision 2": 0,
+          "Postoperative Fusion Revision 2": 0,
+          "Ineligible For Further Fusion Revision": 0
+        }
+      },
+      "description": "List of initial state occupancies",
+      "distribution": null,
+      "standard_error": null
+    },
+    "vbt_revision_prob_quarterly": {
+      "value": 0.0077,
+      "description": "Quarterly probability of VBT revision (converted from 2-year probability)",
+      "distribution": null,
+      "standard_error": null
+    },
+    "vbt_revision_utility": {
+      "value": 0.783,
+      "description": "Utility value for patients undergoing VBT revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "fusion_revision_utility": {
+      "value": 0.783,
+      "description": "Utility value for patients undergoing fusion revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "postop_fusion_revision_utility": {
+      "value": 0.875,
+      "description": "Utility value for patients in postoperative fusion revision states",
+      "distribution": null,
+      "standard_error": null
+    },
+    "ineligible_fusion_utility": {
+      "value": 0.85,
+      "description": "Utility value for patients ineligible for further fusion revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "vbt_index_procedure_disutility": {
+      "value": 0.1,
+      "description": "Temporary disutility experienced during VBT index procedure and immediate recovery",
+      "distribution": null,
+      "standard_error": null
+    },
+    "fusion_index_procedure_disutility": {
+      "value": 0.15,
+      "description": "Temporary disutility experienced during spinal fusion index procedure and immediate recovery",
+      "distribution": null,
+      "standard_error": null
+    },
+    "vbt_revision_procedure_disutility": {
+      "value": 0.12,
+      "description": "Temporary disutility experienced during VBT revision procedure and immediate recovery",
+      "distribution": null,
+      "standard_error": null
+    },
+    "fusion_revision_procedure_disutility": {
+      "value": 0.17,
+      "description": "Temporary disutility experienced during fusion revision procedure and immediate recovery",
+      "distribution": null,
+      "standard_error": null
+    },
+    "recovery_duration_fraction": {
+      "value": 0.5,
+      "description": "Fraction of cycle spent in recovery after procedure",
+      "distribution": null,
+      "standard_error": null
+    },
+    "postop_vbt_followup_cost_quarterly": {
+      "value": 500.0,
+      "description": "Quarterly follow-up costs for patients in postoperative VBT state",
+      "distribution": null,
+      "standard_error": null
+    },
+    "postop_fusion_followup_cost_quarterly": {
+      "value": 400.0,
+      "description": "Quarterly follow-up costs for patients in postoperative fusion state",
+      "distribution": null,
+      "standard_error": null
+    },
+    "postop_fusion_revision_followup_cost_quarterly": {
+      "value": 600.0,
+      "description": "Quarterly follow-up costs for patients in postoperative fusion revision states",
+      "distribution": null,
+      "standard_error": null
+    },
+    "ineligible_fusion_followup_cost_quarterly": {
+      "value": 800.0,
+      "description": "Quarterly follow-up costs for patients ineligible for further fusion revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "followup_cost_time_dependency": {
+      "value": 0.9,
+      "description": "Factor by which follow-up costs decrease each year after the first year",
+      "distribution": null,
+      "standard_error": null
+    },
+    "vbt_complication_rate": {
+      "value": 0.03,
+      "description": "Quarterly probability of experiencing a complication requiring medical management in VBT patients",
+      "distribution": null,
+      "standard_error": null
+    },
+    "fusion_complication_rate": {
+      "value": 0.04,
+      "description": "Quarterly probability of experiencing a complication requiring medical management in fusion patients",
+      "distribution": null,
+      "standard_error": null
+    },
+    "fusion_revision1_complication_rate": {
+      "value": 0.05,
+      "description": "Quarterly probability of experiencing a complication requiring medical management after first fusion revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "fusion_revision2_complication_rate": {
+      "value": 0.06,
+      "description": "Quarterly probability of experiencing a complication requiring medical management after second fusion revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "ineligible_complication_rate": {
+      "value": 0.08,
+      "description": "Quarterly probability of experiencing a complication requiring medical management in patients ineligible for further revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "complication_management_cost": {
+      "value": 2500.0,
+      "description": "Average cost of managing a non-revision complication",
+      "distribution": null,
+      "standard_error": null
+    },
+    "complication_rate_time_dependency": {
+      "value": 1.05,
+      "description": "Factor by which complication rates increase each year",
+      "distribution": null,
+      "standard_error": null
+    },
+    "ineligible_pain_management_cost_quarterly": {
+      "value": 1200.0,
+      "description": "Quarterly costs for pain management in patients ineligible for further fusion revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "ineligible_physical_therapy_cost_quarterly": {
+      "value": 900.0,
+      "description": "Quarterly costs for physical therapy in patients ineligible for further fusion revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "ineligible_assistive_device_cost_quarterly": {
+      "value": 300.0,
+      "description": "Quarterly costs for assistive devices in patients ineligible for further fusion revision",
+      "distribution": null,
+      "standard_error": null
+    },
+    "ineligible_other_management_cost_quarterly": {
+      "value": 500.0,
+      "description": "Quarterly costs for other alternative management approaches in patients ineligible for further fusion revision",
+      "distribution": null,
+      "standard_error": null
+    }
+  },
+  "code": {
+    "transition_matrix_path": "code/transition_matrix.py",
+    "events": [
+      {
+        "event_name": "Index Procedure Costs",
+        "path": "code/events/001_index_procedure_costs.py"
+      },
+      {
+        "event_name": "VBT Revision Costs",
+        "path": "code/events/002_vbt_revision_costs.py"
+      },
+      {
+        "event_name": "Fusion Revision Costs",
+        "path": "code/events/003_fusion_revision_costs.py"
+      },
+      {
+        "event_name": "VBT to Fusion Conversion Costs",
+        "path": "code/events/004_vbt_to_fusion_conversion_costs.py"
+      },
+      {
+        "event_name": "Health State Utilities",
+        "path": "code/events/005_health_state_utilities.py"
+      },
+      {
+        "event_name": "Procedure Recovery Disutility",
+        "path": "code/events/006_procedure_recovery_disutility.py"
+      },
+      {
+        "event_name": "Postoperative Follow-up Costs",
+        "path": "code/events/007_postoperative_follow_up_costs.py"
+      },
+      {
+        "event_name": "Long-term Complication Costs",
+        "path": "code/events/008_long_term_complication_costs.py"
+      },
+      {
+        "event_name": "Ineligible State Costs",
+        "path": "code/events/009_ineligible_state_costs.py"
+      }
+    ]
+  }
+}

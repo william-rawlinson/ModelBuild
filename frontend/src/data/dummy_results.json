@@ -1,0 +1,3871 @@
+{
+  "settings": {
+    "health_states": [
+      "PFS",
+      "PPS",
+      "Death"
+    ],
+    "cycle_length_years": 1.0,
+    "time_horizon_years": 30.0,
+    "n_cycles": 30,
+    "discount_timing": "mid",
+    "discount_rate_cost_annual": 0.05,
+    "discount_rate_qaly_annual": 0.05
+  },
+  "event_names": [
+    "Treatment cost",
+    "Health state utility",
+    "Treatment cost"
+  ],
+  "treatments": [
+    "treatment_a",
+    "treatment_b"
+  ],
+  "per_treatment": {
+    "treatment_a": {
+      "outcomes": {
+        "undiscounted": {
+          "costs_per_cycle_state_event": [
+            {
+              "PFS": {
+                "Treatment cost": 224.99999999999997
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 151.87499999999997
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 102.515625
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 69.198046875
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 46.70868164062501
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 31.528360107421882
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 21.281643072509773
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 14.365109073944097
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 9.696448624912266
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 6.54510282181578
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 4.417944404725652
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 2.982112473189815
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 2.0129259194031253
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 1.35872499559711
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.9171393720280492
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.6190690761189332
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.41787162638028
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.28206334780668896
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.1903927597695151
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.12851511284442269
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.08674770116998533
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.05855469828974011
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.03952442134557457
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.026678984408262836
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.018008314475577415
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.012155612271014757
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.00820503828293496
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.005538400840981099
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0037384205676622424
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0025234338831720137
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            }
+          ],
+          "qalys_per_cycle_state_event": [
+            {
+              "PFS": {
+                "Health state utility": 0.7
+              },
+              "PPS": {
+                "Health state utility": 0.0
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.4725
+              },
+              "PPS": {
+                "Health state utility": 0.14625
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.31893750000000004
+              },
+              "PPS": {
+                "Health state utility": 0.21571875
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.21528281250000003
+              },
+              "PPS": {
+                "Health state utility": 0.23921015625000003
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.14531589843750004
+              },
+              "PPS": {
+                "Health state utility": 0.23634685546875003
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.09808823144531253
+              },
+              "PPS": {
+                "Health state utility": 0.2194381274414063
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.06620955622558596
+              },
+              "PPS": {
+                "Health state utility": 0.19604393602294928
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.04469145045227052
+              },
+              "PPS": {
+                "Health state utility": 0.17066821681549077
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.030166729055282608
+              },
+              "PPS": {
+                "Health state utility": 0.1458718943504563
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.02036254211231576
+              },
+              "PPS": {
+                "Health state utility": 0.12300020708655801
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.01374471592581314
+              },
+              "PPS": {
+                "Health state utility": 0.10265448250342667
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00927768324992387
+              },
+              "PPS": {
+                "Health state utility": 0.08499524986581301
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.006262436193698612
+              },
+              "PPS": {
+                "Health state utility": 0.0699345730002238
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.004227144430746564
+              },
+              "PPS": {
+                "Health state utility": 0.05725606024779107
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.002853322490753931
+              },
+              "PPS": {
+                "Health state utility": 0.046688019445370973
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0019259926812589035
+              },
+              "PPS": {
+                "Health state utility": 0.03794655614811502
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00130004505984976
+              },
+              "PPS": {
+                "Health state utility": 0.030759639817969323
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.000877530415398588
+              },
+              "PPS": {
+                "Health state utility": 0.02487932841152264
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.000592333030394047
+              },
+              "PPS": {
+                "Health state utility": 0.020086803905292463
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0003998247955159817
+              },
+              "PPS": {
+                "Health state utility": 0.016193198418084156
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0002698817369732877
+              },
+              "PPS": {
+                "Health state utility": 0.013038093557816202
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00018217017245696922
+              },
+              "PPS": {
+                "Health state utility": 0.010486860852013452
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00012296486640845421
+              },
+              "PPS": {
+                "Health state utility": 0.008427549235499092
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 8.30012848257066e-05
+              },
+              "PPS": {
+                "Health state utility": 0.0067677302622738975
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 5.602586725735196e-05
+              },
+              "PPS": {
+                "Health state utility": 0.005431525549684489
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 3.7817460398712576e-05
+              },
+              "PPS": {
+                "Health state utility": 0.004356925844156717
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 2.5526785769130988e-05
+              },
+              "PPS": {
+                "Health state utility": 0.0034934418233015336
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 1.7230580394163417e-05
+              },
+              "PPS": {
+                "Health state utility": 0.0028000867335251345
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 1.163064176606031e-05
+              },
+              "PPS": {
+                "Health state utility": 0.002243669347366746
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 7.850683192090709e-06
+              },
+              "PPS": {
+                "Health state utility": 0.0017973654512623773
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            }
+          ],
+          "totals": {
+            "cost_total": 692.3024513296273,
+            "qaly_total": 4.396615152437183,
+            "cost_by_event": {
+              "Treatment cost": 692.3024513296273
+            },
+            "qaly_by_event": {
+              "Health state utility": 4.396615152437183
+            },
+            "cost_by_state": {
+              "PFS": 692.3024513296273,
+              "PPS": 0.0,
+              "Death": 0.0
+            },
+            "qaly_by_state": {
+              "PFS": 2.153829848581063,
+              "PPS": 2.2427853038561194,
+              "Death": 0.0
+            },
+            "cost_by_state_event": {
+              "PFS": {
+                "Treatment cost": 692.3024513296273
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            "qaly_by_state_event": {
+              "PFS": {
+                "Health state utility": 2.153829848581063
+              },
+              "PPS": {
+                "Health state utility": 2.2427853038561194
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            }
+          }
+        },
+        "discounted": {
+          "costs_per_cycle_state_event": [
+            {
+              "PFS": {
+                "Treatment cost": 219.57751641341991
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 141.15697483719853
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 90.74376953819905
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 58.33528041741367
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 37.5012516969088
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 24.107947519441367
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 15.497966262498025
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 9.962978311605873
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 6.404771771746633
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 4.11735328183712
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 2.646869966895293
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 1.701559264432688
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 1.0938595271352993
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.7031954103012641
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.4520541923365268
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.29060626650205296
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.18681831417989123
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.1200974876870729
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.07720552779883261
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.04963212501353524
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0319063660801298
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.020511235337226305
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.013185794145359765
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.008476581950588421
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.005449231253949699
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.00350307723468195
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0022519782222955387
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.001447700285761418
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0009306644694180544
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0005982843017687492
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            }
+          ],
+          "qalys_per_cycle_state_event": [
+            {
+              "PFS": {
+                "Health state utility": 0.6831300510639732
+              },
+              "PPS": {
+                "Health state utility": 0.0
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.43915503282683993
+              },
+              "PPS": {
+                "Health state utility": 0.13592893873211712
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.2823139496743971
+              },
+              "PPS": {
+                "Health state utility": 0.19094779488559305
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.1814875390763981
+              },
+              "PPS": {
+                "Health state utility": 0.2016587486745751
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.11667056083482738
+              },
+              "PPS": {
+                "Health state utility": 0.18975707734378952
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0750025033938176
+              },
+              "PPS": {
+                "Health state utility": 0.16779188140764031
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.04821589503888274
+              },
+              "PPS": {
+                "Health state utility": 0.14276540096547538
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.030995932524996047
+              },
+              "PPS": {
+                "Health state utility": 0.11836761794571811
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.019925956623211748
+              },
+              "PPS": {
+                "Health state utility": 0.09635240977058887
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.012809543543493266
+              },
+              "PPS": {
+                "Health state utility": 0.07737621854105371
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.008234706563674244
+              },
+              "PPS": {
+                "Health state utility": 0.061502147110511524
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.005293739933790585
+              },
+              "PPS": {
+                "Health state utility": 0.04849731730180111
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0034031185288653757
+              },
+              "PPS": {
+                "Health state utility": 0.038003683203163934
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.002187719054270599
+              },
+              "PPS": {
+                "Health state utility": 0.02963233833825628
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.001406390820602528
+              },
+              "PPS": {
+                "Health state utility": 0.023012331130762703
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0009041083846730538
+              },
+              "PPS": {
+                "Health state utility": 0.017813047742503724
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.000581212533004106
+              },
+              "PPS": {
+                "Health state utility": 0.01375174501640887
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00037363662835978244
+              },
+              "PPS": {
+                "Health state utility": 0.010593169445089548
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00024019497537414587
+              },
+              "PPS": {
+                "Health state utility": 0.008145332307684034
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0001544110555976652
+              },
+              "PPS": {
+                "Health state utility": 0.006253761370682352
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 9.926425002707049e-05
+              },
+              "PPS": {
+                "Health state utility": 0.004795495216956837
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 6.381273216025962e-05
+              },
+              "PPS": {
+                "Health state utility": 0.00367346220144529
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 4.10224706744526e-05
+              },
+              "PPS": {
+                "Health state utility": 0.0028115257753575508
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 2.637158829071953e-05
+              },
+              "PPS": {
+                "Health state utility": 0.0021502775109338334
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 1.695316390117684e-05
+              },
+              "PPS": {
+                "Health state utility": 0.00164355408287138
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 1.0898462507899399e-05
+              },
+              "PPS": {
+                "Health state utility": 0.0012556050158211156
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 7.0061544693639e-06
+              },
+              "PPS": {
+                "Health state utility": 0.0009588200122470819
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 4.503956444591077e-06
+              },
+              "PPS": {
+                "Health state utility": 0.0007319236148972928
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 2.895400571522836e-06
+              },
+              "PPS": {
+                "Health state utility": 0.0005585522829557898
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 1.8613289388361088e-06
+              },
+              "PPS": {
+                "Health state utility": 0.0004261397697807177
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            }
+          ],
+          "totals": {
+            "cost_total": 614.8159690458326,
+            "qaly_total": 3.509917109303719,
+            "cost_by_event": {
+              "Treatment cost": 614.8159690458326
+            },
+            "qaly_by_event": {
+              "Health state utility": 3.509917109303719
+            },
+            "cost_by_state": {
+              "PFS": 614.8159690458326,
+              "PPS": 0.0,
+              "Death": 0.0
+            },
+            "qaly_by_state": {
+              "PFS": 1.9127607925870347,
+              "PPS": 1.5971563167166822,
+              "Death": 0.0
+            },
+            "cost_by_state_event": {
+              "PFS": {
+                "Treatment cost": 614.8159690458326
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            "qaly_by_state_event": {
+              "PFS": {
+                "Health state utility": 1.9127607925870347
+              },
+              "PPS": {
+                "Health state utility": 1.5971563167166822
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            }
+          }
+        },
+        "cost_event_names": [
+          "Treatment cost",
+          "Treatment cost"
+        ],
+        "qaly_event_names": [
+          "Health state utility"
+        ]
+      },
+      "occupancy": {
+        "occupancy_by_cycle": [
+          {
+            "PFS": 1.0,
+            "PPS": 0.0,
+            "Death": 0.0
+          },
+          {
+            "PFS": 0.675,
+            "PPS": 0.22499999999999998,
+            "Death": 0.1
+          },
+          {
+            "PFS": 0.45562500000000006,
+            "PPS": 0.331875,
+            "Death": 0.21250000000000002
+          },
+          {
+            "PFS": 0.30754687500000005,
+            "PPS": 0.368015625,
+            "Death": 0.32443750000000005
+          },
+          {
+            "PFS": 0.20759414062500006,
+            "PPS": 0.36361054687500005,
+            "Death": 0.4287953125
+          },
+          {
+            "PFS": 0.14012604492187505,
+            "PPS": 0.33759711914062507,
+            "Death": 0.5222768359375001
+          },
+          {
+            "PFS": 0.09458508032226566,
+            "PPS": 0.30160605541992197,
+            "Death": 0.6038088642578127
+          },
+          {
+            "PFS": 0.06384492921752932,
+            "PPS": 0.26256648740844735,
+            "Death": 0.6735885833740236
+          },
+          {
+            "PFS": 0.0430953272218323,
+            "PPS": 0.22441829900070198,
+            "Death": 0.732486373777466
+          },
+          {
+            "PFS": 0.029089345874736803,
+            "PPS": 0.18923108782547385,
+            "Death": 0.7816795662997896
+          },
+          {
+            "PFS": 0.019635308465447344,
+            "PPS": 0.15792997308219486,
+            "Death": 0.822434718452358
+          },
+          {
+            "PFS": 0.013253833214176959,
+            "PPS": 0.13076192287048155,
+            "Death": 0.8559842439153418
+          },
+          {
+            "PFS": 0.008946337419569447,
+            "PPS": 0.10759165076957507,
+            "Death": 0.8834620118108558
+          },
+          {
+            "PFS": 0.006038777758209378,
+            "PPS": 0.08808624653506318,
+            "Death": 0.9058749757067278
+          },
+          {
+            "PFS": 0.00407617498679133,
+            "PPS": 0.07182772222364765,
+            "Death": 0.9240961027895613
+          },
+          {
+            "PFS": 0.002751418116084148,
+            "PPS": 0.05837931715094618,
+            "Death": 0.9388692647329699
+          },
+          {
+            "PFS": 0.0018572072283568,
+            "PPS": 0.04732252279687588,
+            "Death": 0.9508202699747675
+          },
+          {
+            "PFS": 0.00125361487914084,
+            "PPS": 0.03827588986388099,
+            "Death": 0.9604704952569784
+          },
+          {
+            "PFS": 0.0008461900434200672,
+            "PPS": 0.03090277523891148,
+            "Death": 0.9682510347176686
+          },
+          {
+            "PFS": 0.0005711782793085454,
+            "PPS": 0.0249126129508987,
+            "Death": 0.9745162087697928
+          },
+          {
+            "PFS": 0.00038554533853326815,
+            "PPS": 0.020058605473563387,
+            "Death": 0.9795558491879034
+          },
+          {
+            "PFS": 0.00026024310350995604,
+            "PPS": 0.016133632080020693,
+            "Death": 0.9836061248164695
+          },
+          {
+            "PFS": 0.00017566409486922033,
+            "PPS": 0.012965460362306296,
+            "Death": 0.9868588755428247
+          },
+          {
+            "PFS": 0.00011857326403672372,
+            "PPS": 0.01041189271119061,
+            "Death": 0.9894695340247729
+          },
+          {
+            "PFS": 8.003695322478852e-05,
+            "PPS": 0.008356193153360753,
+            "Death": 0.9915637698934147
+          },
+          {
+            "PFS": 5.4024943426732254e-05,
+            "PPS": 0.00670296283716418,
+            "Death": 0.9932430122194094
+          },
+          {
+            "PFS": 3.646683681304427e-05,
+            "PPS": 0.005374525882002359,
+            "Death": 0.9945890072811848
+          },
+          {
+            "PFS": 2.4615114848804885e-05,
+            "PPS": 0.004307825743884822,
+            "Death": 0.9956675591412667
+          },
+          {
+            "PFS": 1.66152025229433e-05,
+            "PPS": 0.0034517989959488393,
+            "Death": 0.9965315858015286
+          },
+          {
+            "PFS": 1.1215261702986728e-05,
+            "PPS": 0.002765177617326734,
+            "Death": 0.9972236071209706
+          },
+          {
+            "PFS": 7.570301649516042e-06,
+            "PPS": 0.002214665527744559,
+            "Death": 0.9977777641706062
+          }
+        ],
+        "undiscounted": {
+          "time_spent_per_cycle_state": [
+            {
+              "PFS": 1.0,
+              "PPS": 0.0,
+              "Death": 0.0
+            },
+            {
+              "PFS": 0.675,
+              "PPS": 0.22499999999999998,
+              "Death": 0.1
+            },
+            {
+              "PFS": 0.45562500000000006,
+              "PPS": 0.331875,
+              "Death": 0.21250000000000002
+            },
+            {
+              "PFS": 0.30754687500000005,
+              "PPS": 0.368015625,
+              "Death": 0.32443750000000005
+            },
+            {
+              "PFS": 0.20759414062500006,
+              "PPS": 0.36361054687500005,
+              "Death": 0.4287953125
+            },
+            {
+              "PFS": 0.14012604492187505,
+              "PPS": 0.33759711914062507,
+              "Death": 0.5222768359375001
+            },
+            {
+              "PFS": 0.09458508032226566,
+              "PPS": 0.30160605541992197,
+              "Death": 0.6038088642578127
+            },
+            {
+              "PFS": 0.06384492921752932,
+              "PPS": 0.26256648740844735,
+              "Death": 0.6735885833740236
+            },
+            {
+              "PFS": 0.0430953272218323,
+              "PPS": 0.22441829900070198,
+              "Death": 0.732486373777466
+            },
+            {
+              "PFS": 0.029089345874736803,
+              "PPS": 0.18923108782547385,
+              "Death": 0.7816795662997896
+            },
+            {
+              "PFS": 0.019635308465447344,
+              "PPS": 0.15792997308219486,
+              "Death": 0.822434718452358
+            },
+            {
+              "PFS": 0.013253833214176959,
+              "PPS": 0.13076192287048155,
+              "Death": 0.8559842439153418
+            },
+            {
+              "PFS": 0.008946337419569447,
+              "PPS": 0.10759165076957507,
+              "Death": 0.8834620118108558
+            },
+            {
+              "PFS": 0.006038777758209378,
+              "PPS": 0.08808624653506318,
+              "Death": 0.9058749757067278
+            },
+            {
+              "PFS": 0.00407617498679133,
+              "PPS": 0.07182772222364765,
+              "Death": 0.9240961027895613
+            },
+            {
+              "PFS": 0.002751418116084148,
+              "PPS": 0.05837931715094618,
+              "Death": 0.9388692647329699
+            },
+            {
+              "PFS": 0.0018572072283568,
+              "PPS": 0.04732252279687588,
+              "Death": 0.9508202699747675
+            },
+            {
+              "PFS": 0.00125361487914084,
+              "PPS": 0.03827588986388099,
+              "Death": 0.9604704952569784
+            },
+            {
+              "PFS": 0.0008461900434200672,
+              "PPS": 0.03090277523891148,
+              "Death": 0.9682510347176686
+            },
+            {
+              "PFS": 0.0005711782793085454,
+              "PPS": 0.0249126129508987,
+              "Death": 0.9745162087697928
+            },
+            {
+              "PFS": 0.00038554533853326815,
+              "PPS": 0.020058605473563387,
+              "Death": 0.9795558491879034
+            },
+            {
+              "PFS": 0.00026024310350995604,
+              "PPS": 0.016133632080020693,
+              "Death": 0.9836061248164695
+            },
+            {
+              "PFS": 0.00017566409486922033,
+              "PPS": 0.012965460362306296,
+              "Death": 0.9868588755428247
+            },
+            {
+              "PFS": 0.00011857326403672372,
+              "PPS": 0.01041189271119061,
+              "Death": 0.9894695340247729
+            },
+            {
+              "PFS": 8.003695322478852e-05,
+              "PPS": 0.008356193153360753,
+              "Death": 0.9915637698934147
+            },
+            {
+              "PFS": 5.4024943426732254e-05,
+              "PPS": 0.00670296283716418,
+              "Death": 0.9932430122194094
+            },
+            {
+              "PFS": 3.646683681304427e-05,
+              "PPS": 0.005374525882002359,
+              "Death": 0.9945890072811848
+            },
+            {
+              "PFS": 2.4615114848804885e-05,
+              "PPS": 0.004307825743884822,
+              "Death": 0.9956675591412667
+            },
+            {
+              "PFS": 1.66152025229433e-05,
+              "PPS": 0.0034517989959488393,
+              "Death": 0.9965315858015286
+            },
+            {
+              "PFS": 1.1215261702986728e-05,
+              "PPS": 0.002765177617326734,
+              "Death": 0.9972236071209706
+            }
+          ],
+          "totals": {
+            "time_spent_total": 30.00000000000001,
+            "time_spent_by_state": {
+              "PFS": 3.076899783687233,
+              "PPS": 3.450438929009415,
+              "Death": 23.472661287303364
+            }
+          }
+        },
+        "discounted": {
+          "time_spent_per_cycle_state": [
+            {
+              "PFS": 1.0,
+              "PPS": 0.0,
+              "Death": 0.0
+            },
+            {
+              "PFS": 0.675,
+              "PPS": 0.22499999999999998,
+              "Death": 0.1
+            },
+            {
+              "PFS": 0.45562500000000006,
+              "PPS": 0.331875,
+              "Death": 0.21250000000000002
+            },
+            {
+              "PFS": 0.30754687500000005,
+              "PPS": 0.368015625,
+              "Death": 0.32443750000000005
+            },
+            {
+              "PFS": 0.20759414062500006,
+              "PPS": 0.36361054687500005,
+              "Death": 0.4287953125
+            },
+            {
+              "PFS": 0.14012604492187505,
+              "PPS": 0.33759711914062507,
+              "Death": 0.5222768359375001
+            },
+            {
+              "PFS": 0.09458508032226566,
+              "PPS": 0.30160605541992197,
+              "Death": 0.6038088642578127
+            },
+            {
+              "PFS": 0.06384492921752932,
+              "PPS": 0.26256648740844735,
+              "Death": 0.6735885833740236
+            },
+            {
+              "PFS": 0.0430953272218323,
+              "PPS": 0.22441829900070198,
+              "Death": 0.732486373777466
+            },
+            {
+              "PFS": 0.029089345874736803,
+              "PPS": 0.18923108782547385,
+              "Death": 0.7816795662997896
+            },
+            {
+              "PFS": 0.019635308465447344,
+              "PPS": 0.15792997308219486,
+              "Death": 0.822434718452358
+            },
+            {
+              "PFS": 0.013253833214176959,
+              "PPS": 0.13076192287048155,
+              "Death": 0.8559842439153418
+            },
+            {
+              "PFS": 0.008946337419569447,
+              "PPS": 0.10759165076957507,
+              "Death": 0.8834620118108558
+            },
+            {
+              "PFS": 0.006038777758209378,
+              "PPS": 0.08808624653506318,
+              "Death": 0.9058749757067278
+            },
+            {
+              "PFS": 0.00407617498679133,
+              "PPS": 0.07182772222364765,
+              "Death": 0.9240961027895613
+            },
+            {
+              "PFS": 0.002751418116084148,
+              "PPS": 0.05837931715094618,
+              "Death": 0.9388692647329699
+            },
+            {
+              "PFS": 0.0018572072283568,
+              "PPS": 0.04732252279687588,
+              "Death": 0.9508202699747675
+            },
+            {
+              "PFS": 0.00125361487914084,
+              "PPS": 0.03827588986388099,
+              "Death": 0.9604704952569784
+            },
+            {
+              "PFS": 0.0008461900434200672,
+              "PPS": 0.03090277523891148,
+              "Death": 0.9682510347176686
+            },
+            {
+              "PFS": 0.0005711782793085454,
+              "PPS": 0.0249126129508987,
+              "Death": 0.9745162087697928
+            },
+            {
+              "PFS": 0.00038554533853326815,
+              "PPS": 0.020058605473563387,
+              "Death": 0.9795558491879034
+            },
+            {
+              "PFS": 0.00026024310350995604,
+              "PPS": 0.016133632080020693,
+              "Death": 0.9836061248164695
+            },
+            {
+              "PFS": 0.00017566409486922033,
+              "PPS": 0.012965460362306296,
+              "Death": 0.9868588755428247
+            },
+            {
+              "PFS": 0.00011857326403672372,
+              "PPS": 0.01041189271119061,
+              "Death": 0.9894695340247729
+            },
+            {
+              "PFS": 8.003695322478852e-05,
+              "PPS": 0.008356193153360753,
+              "Death": 0.9915637698934147
+            },
+            {
+              "PFS": 5.4024943426732254e-05,
+              "PPS": 0.00670296283716418,
+              "Death": 0.9932430122194094
+            },
+            {
+              "PFS": 3.646683681304427e-05,
+              "PPS": 0.005374525882002359,
+              "Death": 0.9945890072811848
+            },
+            {
+              "PFS": 2.4615114848804885e-05,
+              "PPS": 0.004307825743884822,
+              "Death": 0.9956675591412667
+            },
+            {
+              "PFS": 1.66152025229433e-05,
+              "PPS": 0.0034517989959488393,
+              "Death": 0.9965315858015286
+            },
+            {
+              "PFS": 1.1215261702986728e-05,
+              "PPS": 0.002765177617326734,
+              "Death": 0.9972236071209706
+            }
+          ],
+          "totals": {
+            "time_spent_total": 30.00000000000001,
+            "time_spent_by_state": {
+              "PFS": 3.076899783687233,
+              "PPS": 3.450438929009415,
+              "Death": 23.472661287303364
+            }
+          }
+        }
+      }
+    },
+    "treatment_b": {
+      "outcomes": {
+        "undiscounted": {
+          "costs_per_cycle_state_event": [
+            {
+              "PFS": {
+                "Treatment cost": 240.0
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 158.4
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 104.54400000000001
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 68.99904
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 45.539366400000006
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 30.055981824000007
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 19.836948003840003
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 13.092385682534404
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 8.640974550472707
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 5.703043203311987
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 3.764008514185911
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 2.4842456193627016
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 1.639602108779383
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 1.0821373917943928
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.7142106785842994
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.47137904786563756
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.3111101715913208
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.20533271325027178
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.13551959074517936
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.08944292989181839
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.05903233372860014
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.038961340260876096
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.025714484572178224
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.01697155981763763
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.011201229479640834
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0073928114565629515
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.004879255561331548
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0032203086704788225
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.002125403722516023
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0014027664568605751
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            }
+          ],
+          "qalys_per_cycle_state_event": [
+            {
+              "PFS": {
+                "Health state utility": 0.7
+              },
+              "PPS": {
+                "Health state utility": 0.0
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.46199999999999997
+              },
+              "PPS": {
+                "Health state utility": 0.156
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.30492
+              },
+              "PPS": {
+                "Health state utility": 0.22776000000000005
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.20124720000000001
+              },
+              "PPS": {
+                "Health state utility": 0.2501616000000001
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.132823152
+              },
+              "PPS": {
+                "Health state utility": 0.24497865600000007
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.08766328032000002
+              },
+              "PPS": {
+                "Health state utility": 0.2255835129600001
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.05785776501120001
+              },
+              "PPS": {
+                "Health state utility": 0.20000319855360008
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.03818612490739201
+              },
+              "PPS": {
+                "Health state utility": 0.1728965750453761
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.025202842438878728
+              },
+              "PPS": {
+                "Health state utility": 0.14682731072994823
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.01663387600965996
+              },
+              "PPS": {
+                "Health state utility": 0.12307848204176587
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.010978358166375574
+              },
+              "PPS": {
+                "Health state utility": 0.1021697637155655
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.007245716389807879
+              },
+              "PPS": {
+                "Health state utility": 0.08418241650667325
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.004782172817273201
+              },
+              "PPS": {
+                "Health state utility": 0.06896069285792436
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0031562340594003127
+              },
+              "PPS": {
+                "Health state utility": 0.05623429565704608
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0020831144792042063
+              },
+              "PPS": {
+                "Health state utility": 0.045690825830303226
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0013748555562747762
+              },
+              "PPS": {
+                "Health state utility": 0.037016897605322376
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0009074046671413525
+              },
+              "PPS": {
+                "Health state utility": 0.029919914465370567
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0005988870803132927
+              },
+              "PPS": {
+                "Health state utility": 0.02413815318383081
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00039526547300677313
+              },
+              "PPS": {
+                "Health state utility": 0.019443988810677326
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0002608752121844703
+              },
+              "PPS": {
+                "Health state utility": 0.015643278782526228
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00017217764004175042
+              },
+              "PPS": {
+                "Health state utility": 0.012572760930450665
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00011363724242755528
+              },
+              "PPS": {
+                "Health state utility": 0.010096579761284124
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 7.500058000218649e-05
+              },
+              "PPS": {
+                "Health state utility": 0.008102588680196868
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 4.950038280144308e-05
+              },
+              "PPS": {
+                "Health state utility": 0.006498785359129411
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 3.2670252648952436e-05
+              },
+              "PPS": {
+                "Health state utility": 0.005210059801184995
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 2.1562366748308607e-05
+              },
+              "PPS": {
+                "Health state utility": 0.004175328640109762
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 1.4231162053883684e-05
+              },
+              "PPS": {
+                "Health state utility": 0.0033450682395345754
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 9.392566955563232e-06
+              },
+              "PPS": {
+                "Health state utility": 0.002679226107742526
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 6.199094190671733e-06
+              },
+              "PPS": {
+                "Health state utility": 0.002145474086829832
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 4.091402165843344e-06
+              },
+              "PPS": {
+                "Health state utility": 0.001717760781883501
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            }
+          ],
+          "totals": {
+            "cost_total": 705.8796299239368,
+            "qaly_total": 4.346048782412425,
+            "cost_by_event": {
+              "Treatment cost": 705.8796299239368
+            },
+            "qaly_by_event": {
+              "Health state utility": 4.346048782412425
+            },
+            "cost_by_state": {
+              "PFS": 705.8796299239368,
+              "PPS": 0.0,
+              "Death": 0.0
+            },
+            "qaly_by_state": {
+              "PFS": 2.0588155872781493,
+              "PPS": 2.287233195134277,
+              "Death": 0.0
+            },
+            "cost_by_state_event": {
+              "PFS": {
+                "Treatment cost": 705.8796299239368
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            "qaly_by_state_event": {
+              "PFS": {
+                "Health state utility": 2.0588155872781493
+              },
+              "PPS": {
+                "Health state utility": 2.287233195134277
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            }
+          }
+        },
+        "discounted": {
+          "costs_per_cycle_state_event": [
+            {
+              "PFS": {
+                "Treatment cost": 234.21601750764793
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 147.221496719093
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 92.53922650914417
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 58.167513805747745
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 36.56243724932717
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 22.982103413862788
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 14.445893574428037
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 9.080275961069054
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 5.707602032671978
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 3.5876355633938135
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 2.2550852112761115
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 1.4174821328021274
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.8909887691899084
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.5600500834907997
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.3520314810513598
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.221276930946569
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.13908835659498622
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.08742696700256279
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.05495409354446803
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.034542573085094196
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.021712474510630634
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.013647841120967829
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.008578642990322634
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.005392289879631371
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.003389439352911147
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0021305047361155783
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0013391744055583636
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0008417667692081143
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0005291105406451004
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Treatment cost": 0.0003325837684054917
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            }
+          ],
+          "qalys_per_cycle_state_event": [
+            {
+              "PFS": {
+                "Health state utility": 0.6831300510639732
+              },
+              "PPS": {
+                "Health state utility": 0.0
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.4293960320973546
+              },
+              "PPS": {
+                "Health state utility": 0.14499086798092495
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.26990607731833716
+              },
+              "PPS": {
+                "Health state utility": 0.20160634976395275
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.16965524860009762
+              },
+              "PPS": {
+                "Health state utility": 0.21089102575438662
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.10664044197720422
+              },
+              "PPS": {
+                "Health state utility": 0.19668733769261462
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.06703113495709981
+              },
+              "PPS": {
+                "Health state utility": 0.172490908920147
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.042133856258748444
+              },
+              "PPS": {
+                "Health state utility": 0.14564866129059847
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.02648413821978474
+              },
+              "PPS": {
+                "Health state utility": 0.11991310462462575
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.016647172595293264
+              },
+              "PPS": {
+                "Health state utility": 0.09698348864228142
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.010463937059898622
+              },
+              "PPS": {
+                "Health state utility": 0.07742545927148754
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.006577331866221991
+              },
+              "PPS": {
+                "Health state utility": 0.06121174336513908
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.004134322887339538
+              },
+              "PPS": {
+                "Health state utility": 0.04803352388518165
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0025987172434705666
+              },
+              "PPS": {
+                "Health state utility": 0.03747445951853971
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0016334794101814992
+              },
+              "PPS": {
+                "Health state utility": 0.02910353363314782
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0010267584863997991
+              },
+              "PPS": {
+                "Health state utility": 0.022520818534083116
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0006453910485941596
+              },
+              "PPS": {
+                "Health state utility": 0.0173766431332856
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0004056743734020432
+              },
+              "PPS": {
+                "Health state utility": 0.013376328106422617
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0002549953204241415
+              },
+              "PPS": {
+                "Health state utility": 0.010277590397071271
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.00016028277283803175
+              },
+              "PPS": {
+                "Health state utility": 0.007884666520198745
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 0.0001007491714981914
+              },
+              "PPS": {
+                "Health state utility": 0.006041384168536096
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 6.332805065600602e-05
+              },
+              "PPS": {
+                "Health state utility": 0.004624342864127798
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 3.98062032694895e-05
+              },
+              "PPS": {
+                "Health state utility": 0.003536749904508713
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 2.5021042055107684e-05
+              },
+              "PPS": {
+                "Health state utility": 0.0027031152574624752
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 1.5727512148924832e-05
+              },
+              "PPS": {
+                "Health state utility": 0.0020648269751558958
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 9.885864779324179e-06
+              },
+              "PPS": {
+                "Health state utility": 0.001576539589091883
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 6.213972147003769e-06
+              },
+              "PPS": {
+                "Health state utility": 0.0012032712446218082
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 3.905925349545228e-06
+              },
+              "PPS": {
+                "Health state utility": 0.0009180969750246873
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 2.4551530768570002e-06
+              },
+              "PPS": {
+                "Health state utility": 0.0007003314698889168
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 1.5432390768815427e-06
+              },
+              "PPS": {
+                "Health state utility": 0.0005341069755343988
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            },
+            {
+              "PFS": {
+                "Health state utility": 9.700359911826839e-07
+              },
+              "PPS": {
+                "Health state utility": 0.0004072661926466079
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            }
+          ],
+          "totals": {
+            "cost_total": 630.5810227634441,
+            "qaly_total": 3.4774011923774015,
+            "cost_by_event": {
+              "Treatment cost": 630.5810227634441
+            },
+            "qaly_by_event": {
+              "Health state utility": 3.4774011923774015
+            },
+            "cost_by_state": {
+              "PFS": 630.5810227634441,
+              "PPS": 0.0,
+              "Death": 0.0
+            },
+            "qaly_by_state": {
+              "PFS": 1.8391946497267115,
+              "PPS": 1.638206542650688,
+              "Death": 0.0
+            },
+            "cost_by_state_event": {
+              "PFS": {
+                "Treatment cost": 630.5810227634441
+              },
+              "PPS": {
+                "Treatment cost": 0.0
+              },
+              "Death": {
+                "Treatment cost": 0.0
+              }
+            },
+            "qaly_by_state_event": {
+              "PFS": {
+                "Health state utility": 1.8391946497267115
+              },
+              "PPS": {
+                "Health state utility": 1.638206542650688
+              },
+              "Death": {
+                "Health state utility": 0.0
+              }
+            }
+          }
+        },
+        "cost_event_names": [
+          "Treatment cost",
+          "Treatment cost"
+        ],
+        "qaly_event_names": [
+          "Health state utility"
+        ]
+      },
+      "occupancy": {
+        "occupancy_by_cycle": [
+          {
+            "PFS": 1.0,
+            "PPS": 0.0,
+            "Death": 0.0
+          },
+          {
+            "PFS": 0.66,
+            "PPS": 0.24,
+            "Death": 0.1
+          },
+          {
+            "PFS": 0.43560000000000004,
+            "PPS": 0.35040000000000004,
+            "Death": 0.21400000000000002
+          },
+          {
+            "PFS": 0.28749600000000003,
+            "PPS": 0.3848640000000001,
+            "Death": 0.32764000000000004
+          },
+          {
+            "PFS": 0.18974736000000003,
+            "PPS": 0.3768902400000001,
+            "Death": 0.43336240000000004
+          },
+          {
+            "PFS": 0.12523325760000004,
+            "PPS": 0.3470515584000001,
+            "Death": 0.5277151840000001
+          },
+          {
+            "PFS": 0.08265395001600002,
+            "PPS": 0.3076972285440001,
+            "Death": 0.6096488214400001
+          },
+          {
+            "PFS": 0.05455160701056002,
+            "PPS": 0.2659947308390401,
+            "Death": 0.6794536621504
+          },
+          {
+            "PFS": 0.03600406062696961,
+            "PPS": 0.22588817035376652,
+            "Death": 0.7381077690192641
+          },
+          {
+            "PFS": 0.023762680013799945,
+            "PPS": 0.18935151083348595,
+            "Death": 0.7868858091527143
+          },
+          {
+            "PFS": 0.015683368809107964,
+            "PPS": 0.15718425187010077,
+            "Death": 0.8271323793207915
+          },
+          {
+            "PFS": 0.010351023414011257,
+            "PPS": 0.12951141001026653,
+            "Death": 0.8601375665757225
+          },
+          {
+            "PFS": 0.00683167545324743,
+            "PPS": 0.10609337362757593,
+            "Death": 0.887074950919177
+          },
+          {
+            "PFS": 0.004508905799143304,
+            "PPS": 0.08651430101084012,
+            "Death": 0.9089767931900169
+          },
+          {
+            "PFS": 0.002975877827434581,
+            "PPS": 0.0702935782004665,
+            "Death": 0.9267305439720992
+          },
+          {
+            "PFS": 0.0019640793661068233,
+            "PPS": 0.0569490732389575,
+            "Death": 0.941086847394936
+          },
+          {
+            "PFS": 0.0012962923816305036,
+            "PPS": 0.04603063763903164,
+            "Death": 0.9526730699793382
+          },
+          {
+            "PFS": 0.0008555529718761324,
+            "PPS": 0.03713562028281663,
+            "Death": 0.9620088267453076
+          },
+          {
+            "PFS": 0.0005646649614382474,
+            "PPS": 0.02991382893950358,
+            "Death": 0.9695215060990585
+          },
+          {
+            "PFS": 0.0003726788745492433,
+            "PPS": 0.024066582742348044,
+            "Death": 0.975560738383103
+          },
+          {
+            "PFS": 0.0002459680572025006,
+            "PPS": 0.019342709123770254,
+            "Death": 0.9804113228190275
+          },
+          {
+            "PFS": 0.0001623389177536504,
+            "PPS": 0.015533199632744805,
+            "Death": 0.9843044614495018
+          },
+          {
+            "PFS": 0.00010714368571740927,
+            "PPS": 0.01246552104645672,
+            "Death": 0.9874273352678261
+          },
+          {
+            "PFS": 7.071483257349012e-05,
+            "PPS": 0.009998131321737555,
+            "Death": 0.9899311538456892
+          },
+          {
+            "PFS": 4.667178949850348e-05,
+            "PPS": 0.008015476617207683,
+            "Death": 0.9919378515932941
+          },
+          {
+            "PFS": 3.08033810690123e-05,
+            "PPS": 0.006423582523245788,
+            "Death": 0.9935456140956854
+          },
+          {
+            "PFS": 2.033023150554812e-05,
+            "PPS": 0.005146258830053193,
+            "Death": 0.9948334109384415
+          },
+          {
+            "PFS": 1.341795279366176e-05,
+            "PPS": 0.004121886319603886,
+            "Death": 0.9958646957276027
+          },
+          {
+            "PFS": 8.855848843816762e-06,
+            "PPS": 0.0033007293643535877,
+            "Death": 0.9966904147868029
+          },
+          {
+            "PFS": 5.844860236919063e-06,
+            "PPS": 0.002642708895205386,
+            "Death": 0.997351446244558
+          },
+          {
+            "PFS": 3.857607756366581e-06,
+            "PPS": 0.002115569882621169,
+            "Death": 0.9978805725096227
+          }
+        ],
+        "undiscounted": {
+          "time_spent_per_cycle_state": [
+            {
+              "PFS": 1.0,
+              "PPS": 0.0,
+              "Death": 0.0
+            },
+            {
+              "PFS": 0.66,
+              "PPS": 0.24,
+              "Death": 0.1
+            },
+            {
+              "PFS": 0.43560000000000004,
+              "PPS": 0.35040000000000004,
+              "Death": 0.21400000000000002
+            },
+            {
+              "PFS": 0.28749600000000003,
+              "PPS": 0.3848640000000001,
+              "Death": 0.32764000000000004
+            },
+            {
+              "PFS": 0.18974736000000003,
+              "PPS": 0.3768902400000001,
+              "Death": 0.43336240000000004
+            },
+            {
+              "PFS": 0.12523325760000004,
+              "PPS": 0.3470515584000001,
+              "Death": 0.5277151840000001
+            },
+            {
+              "PFS": 0.08265395001600002,
+              "PPS": 0.3076972285440001,
+              "Death": 0.6096488214400001
+            },
+            {
+              "PFS": 0.05455160701056002,
+              "PPS": 0.2659947308390401,
+              "Death": 0.6794536621504
+            },
+            {
+              "PFS": 0.03600406062696961,
+              "PPS": 0.22588817035376652,
+              "Death": 0.7381077690192641
+            },
+            {
+              "PFS": 0.023762680013799945,
+              "PPS": 0.18935151083348595,
+              "Death": 0.7868858091527143
+            },
+            {
+              "PFS": 0.015683368809107964,
+              "PPS": 0.15718425187010077,
+              "Death": 0.8271323793207915
+            },
+            {
+              "PFS": 0.010351023414011257,
+              "PPS": 0.12951141001026653,
+              "Death": 0.8601375665757225
+            },
+            {
+              "PFS": 0.00683167545324743,
+              "PPS": 0.10609337362757593,
+              "Death": 0.887074950919177
+            },
+            {
+              "PFS": 0.004508905799143304,
+              "PPS": 0.08651430101084012,
+              "Death": 0.9089767931900169
+            },
+            {
+              "PFS": 0.002975877827434581,
+              "PPS": 0.0702935782004665,
+              "Death": 0.9267305439720992
+            },
+            {
+              "PFS": 0.0019640793661068233,
+              "PPS": 0.0569490732389575,
+              "Death": 0.941086847394936
+            },
+            {
+              "PFS": 0.0012962923816305036,
+              "PPS": 0.04603063763903164,
+              "Death": 0.9526730699793382
+            },
+            {
+              "PFS": 0.0008555529718761324,
+              "PPS": 0.03713562028281663,
+              "Death": 0.9620088267453076
+            },
+            {
+              "PFS": 0.0005646649614382474,
+              "PPS": 0.02991382893950358,
+              "Death": 0.9695215060990585
+            },
+            {
+              "PFS": 0.0003726788745492433,
+              "PPS": 0.024066582742348044,
+              "Death": 0.975560738383103
+            },
+            {
+              "PFS": 0.0002459680572025006,
+              "PPS": 0.019342709123770254,
+              "Death": 0.9804113228190275
+            },
+            {
+              "PFS": 0.0001623389177536504,
+              "PPS": 0.015533199632744805,
+              "Death": 0.9843044614495018
+            },
+            {
+              "PFS": 0.00010714368571740927,
+              "PPS": 0.01246552104645672,
+              "Death": 0.9874273352678261
+            },
+            {
+              "PFS": 7.071483257349012e-05,
+              "PPS": 0.009998131321737555,
+              "Death": 0.9899311538456892
+            },
+            {
+              "PFS": 4.667178949850348e-05,
+              "PPS": 0.008015476617207683,
+              "Death": 0.9919378515932941
+            },
+            {
+              "PFS": 3.08033810690123e-05,
+              "PPS": 0.006423582523245788,
+              "Death": 0.9935456140956854
+            },
+            {
+              "PFS": 2.033023150554812e-05,
+              "PPS": 0.005146258830053193,
+              "Death": 0.9948334109384415
+            },
+            {
+              "PFS": 1.341795279366176e-05,
+              "PPS": 0.004121886319603886,
+              "Death": 0.9958646957276027
+            },
+            {
+              "PFS": 8.855848843816762e-06,
+              "PPS": 0.0033007293643535877,
+              "Death": 0.9966904147868029
+            },
+            {
+              "PFS": 5.844860236919063e-06,
+              "PPS": 0.002642708895205386,
+              "Death": 0.997351446244558
+            }
+          ],
+          "totals": {
+            "time_spent_total": 30.000000000000007,
+            "time_spent_by_state": {
+              "PFS": 2.9411651246830703,
+              "PPS": 3.5188203002065808,
+              "Death": 23.54001457511036
+            }
+          }
+        },
+        "discounted": {
+          "time_spent_per_cycle_state": [
+            {
+              "PFS": 1.0,
+              "PPS": 0.0,
+              "Death": 0.0
+            },
+            {
+              "PFS": 0.66,
+              "PPS": 0.24,
+              "Death": 0.1
+            },
+            {
+              "PFS": 0.43560000000000004,
+              "PPS": 0.35040000000000004,
+              "Death": 0.21400000000000002
+            },
+            {
+              "PFS": 0.28749600000000003,
+              "PPS": 0.3848640000000001,
+              "Death": 0.32764000000000004
+            },
+            {
+              "PFS": 0.18974736000000003,
+              "PPS": 0.3768902400000001,
+              "Death": 0.43336240000000004
+            },
+            {
+              "PFS": 0.12523325760000004,
+              "PPS": 0.3470515584000001,
+              "Death": 0.5277151840000001
+            },
+            {
+              "PFS": 0.08265395001600002,
+              "PPS": 0.3076972285440001,
+              "Death": 0.6096488214400001
+            },
+            {
+              "PFS": 0.05455160701056002,
+              "PPS": 0.2659947308390401,
+              "Death": 0.6794536621504
+            },
+            {
+              "PFS": 0.03600406062696961,
+              "PPS": 0.22588817035376652,
+              "Death": 0.7381077690192641
+            },
+            {
+              "PFS": 0.023762680013799945,
+              "PPS": 0.18935151083348595,
+              "Death": 0.7868858091527143
+            },
+            {
+              "PFS": 0.015683368809107964,
+              "PPS": 0.15718425187010077,
+              "Death": 0.8271323793207915
+            },
+            {
+              "PFS": 0.010351023414011257,
+              "PPS": 0.12951141001026653,
+              "Death": 0.8601375665757225
+            },
+            {
+              "PFS": 0.00683167545324743,
+              "PPS": 0.10609337362757593,
+              "Death": 0.887074950919177
+            },
+            {
+              "PFS": 0.004508905799143304,
+              "PPS": 0.08651430101084012,
+              "Death": 0.9089767931900169
+            },
+            {
+              "PFS": 0.002975877827434581,
+              "PPS": 0.0702935782004665,
+              "Death": 0.9267305439720992
+            },
+            {
+              "PFS": 0.0019640793661068233,
+              "PPS": 0.0569490732389575,
+              "Death": 0.941086847394936
+            },
+            {
+              "PFS": 0.0012962923816305036,
+              "PPS": 0.04603063763903164,
+              "Death": 0.9526730699793382
+            },
+            {
+              "PFS": 0.0008555529718761324,
+              "PPS": 0.03713562028281663,
+              "Death": 0.9620088267453076
+            },
+            {
+              "PFS": 0.0005646649614382474,
+              "PPS": 0.02991382893950358,
+              "Death": 0.9695215060990585
+            },
+            {
+              "PFS": 0.0003726788745492433,
+              "PPS": 0.024066582742348044,
+              "Death": 0.975560738383103
+            },
+            {
+              "PFS": 0.0002459680572025006,
+              "PPS": 0.019342709123770254,
+              "Death": 0.9804113228190275
+            },
+            {
+              "PFS": 0.0001623389177536504,
+              "PPS": 0.015533199632744805,
+              "Death": 0.9843044614495018
+            },
+            {
+              "PFS": 0.00010714368571740927,
+              "PPS": 0.01246552104645672,
+              "Death": 0.9874273352678261
+            },
+            {
+              "PFS": 7.071483257349012e-05,
+              "PPS": 0.009998131321737555,
+              "Death": 0.9899311538456892
+            },
+            {
+              "PFS": 4.667178949850348e-05,
+              "PPS": 0.008015476617207683,
+              "Death": 0.9919378515932941
+            },
+            {
+              "PFS": 3.08033810690123e-05,
+              "PPS": 0.006423582523245788,
+              "Death": 0.9935456140956854
+            },
+            {
+              "PFS": 2.033023150554812e-05,
+              "PPS": 0.005146258830053193,
+              "Death": 0.9948334109384415
+            },
+            {
+              "PFS": 1.341795279366176e-05,
+              "PPS": 0.004121886319603886,
+              "Death": 0.9958646957276027
+            },
+            {
+              "PFS": 8.855848843816762e-06,
+              "PPS": 0.0033007293643535877,
+              "Death": 0.9966904147868029
+            },
+            {
+              "PFS": 5.844860236919063e-06,
+              "PPS": 0.002642708895205386,
+              "Death": 0.997351446244558
+            }
+          ],
+          "totals": {
+            "time_spent_total": 30.000000000000007,
+            "time_spent_by_state": {
+              "PFS": 2.9411651246830703,
+              "PPS": 3.5188203002065808,
+              "Death": 23.54001457511036
+            }
+          }
+        }
+      }
+    }
+  },
+  "icer": {
+    "discounted": {
+      "reference_treatment": "treatment_a",
+      "comparisons": [
+        {
+          "comparator": "treatment_b",
+          "delta_cost": 15.765053717611522,
+          "delta_qaly": -0.03251591692631761,
+          "icer": -484.84112422035565
+        }
+      ]
+    },
+    "undiscounted": {
+      "reference_treatment": "treatment_a",
+      "comparisons": [
+        {
+          "comparator": "treatment_b",
+          "delta_cost": 13.577178594309544,
+          "delta_qaly": -0.05056637002475739,
+          "icer": -268.5021406057451
+        }
+      ]
+    },
+    "note": "ICERs computed for both discounted and undiscounted totals"
+  }
+}

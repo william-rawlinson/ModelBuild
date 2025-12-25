@@ -1,0 +1,66 @@
+# ======================
+# Python
+# ======================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env
+.venv
+venv/
+ENV/
+env/
+
+# Distribution / packaging
+build/
+dist/
+.eggs/
+*.egg-info/
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Jupyter
+.ipynb_checkpoints
+
+# mypy / type checking
+.mypy_cache/
+.pytype/
+.pyre/
+
+# ======================
+# PyCharm / JetBrains
+# ======================
+.idea/
+*.iml
+
+# ======================
+# OS files
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# Logs
+# ======================
+*.log
+
+# ======================
+# Local config / secrets
+# ======================
+.env.local
+.env.*.local

@@ -1,0 +1,3159 @@
+
+================================================================================
+User:
+We are going to work together to code a health economic Markov model in Python. The model will be built using a framework. The framework uses parameters, a transition matrix, Events, and a generic runner. For now, your task is to create a set of Events we can use for the model. To do this, first read the description of Events and their role in detail.
+
+<events_and_their_role>
+- In each model cycle, Events are evaluated to determine cost and QALY impacts for that cycle and treatment arm.
+- An Event can contribute impacts in two distinct ways:
+    - Occupancy impacts: per-patient costs and QALYs accrued while patients occupy particular health states
+      (represented as vectors over health states).
+    - Flow impacts: per-transition costs and QALYs accrued when patients move from one health state to another
+      within the cycle (represented as matrices over state→state transitions).
+- Event calculation functions may depend on the model cycle, treatment arm, and model parameters.
+- The generic runner combines state occupancies and the model’s transition matrix to convert Event impacts into
+  cohort-level costs and QALYs for each cycle, aggregates these over time, and applies all discounting.
+</events_and_their_role>
+
+<defining_a_good_set_of_events>
+- Each distinct real-world mechanism/trigger should be represented by exactly one Event. That Event may include both
+  cost and QALY impacts (and both occupancy and flow components) so the trigger/event rate is calculated once and
+  its full consequences are applied together.
+- Avoid duplicating the same event-rate logic across multiple Events.
+- Overlapping Events that describe the same consequence will result in double counting and must be avoided.
+- Events must not attempt to define or reproduce transition probabilities. If a cost/QALY impact is conditional
+  on a transition, express it as a flow impact rather than recalculating transition probabilities within the Event.
+- Events must only define per-patient cost and/or QALY impacts (via occupancy and/or flow).
+  They must not update state occupancies, apply discounting, or implement other model mechanics.
+- A good set of Events is not overly granular.
+</defining_a_good_set_of_events>
+
+Two simple Events are provided below to illustrate the concept.
+
+<simple_event_examples>
+def get_progression_cost_impact(context: EventContext) -> EventImpact:
+    impact = initialise_impact(context.health_states)
+    cost = float(context.params["progression_cost"])
+    impact.cost_flow.add("PFS", "PPS", cost)
+    return impact
+
+progression_cost_event = EventSpec(
+    event_name="Progression cost",
+    tags={"cost"},
+    calculation_function=progression_cost_event,
+)
+
+def get_healthstate_utility_impact(context: EventContext) -> EventImpact:
+    impact = initialise_impact(context.health_states)
+    cycle_length = float(context.params["cycle_length"])
+    impact.qaly_occupation.add("PFS", float(context.params["pfs_utility"]) * cycle_length)
+    impact.qaly_occupation.add("PPS", float(context.params["pps_utility"]) * cycle_length)
+    return impact
+
+healthstate_utility_event = EventSpec(
+    event_name="Health state utility",
+    tags={"utility"},
+    calculation_function=healthstate_utility_event,
+)
+</simple_event_examples>
+
+Now, demarcated by <model_description></model_description> is a description of the model.
+Demarcated by <available_parameters></available_parameters> is an initial set of parameters (we may add more).
+Based on these, devise a list of Events for the model.
+
+Return a dictionary where each key is an Event name and each value is a description of the Event.
+Return your dictionary in <event_recommendations></event_recommendations> tags.
+
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+</model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+
+================================================================================
+Assistant:
+I'll create a set of Events for the health economic Markov model based on the model description and available parameters.
+
+First, let me identify the health states that would be needed based on the transitions described:
+
+1. VBT Index Procedure
+2. Postoperative VBT
+3. VBT Revision Procedure
+4. Fusion Index Procedure
+5. Postoperative Fusion Index
+6. Fusion Revision 1 Procedure
+7. Postoperative Fusion Revision 1
+8. Fusion Revision 2 Procedure
+9. Postoperative Fusion Revision 2
+10. Ineligible for Further Fusion (absorbing state)
+
+Now I'll create appropriate Events for this model:
+
+<event_recommendations>
+{
+    "Index Procedure Costs": "One-time costs incurred when patients enter the model and undergo their initial procedure. Applies flow costs when patients transition from the starting state to either VBT Index Procedure or Fusion Index Procedure states, depending on treatment arm. Includes both device costs (vbt_index_device_cost or fusion_device_cost) and non-device costs (non_device_cost).",
+    
+    "VBT Revision Procedure Costs": "Costs incurred when patients undergo VBT revision. Applies flow costs when patients transition from Postoperative VBT to VBT Revision Procedure state. Includes both device costs (vbt_revision_device_cost) and non-device costs (non_device_cost).",
+    
+    "Fusion Procedure Costs (Post-VBT)": "Costs incurred when VBT patients later undergo fusion. Applies flow costs when patients transition from Postoperative VBT to Fusion Index Procedure. Includes both device costs (fusion_device_cost) and non-device costs (non_device_cost).",
+    
+    "Fusion Revision Procedure Costs": "Costs incurred when patients undergo fusion revision. Applies flow costs when patients transition to any fusion revision procedure state. Includes both device costs (fusion_device_cost) and non-device costs (non_device_cost).",
+    
+    "Health State Utilities": "QALYs accrued based on time spent in each health state. Applies occupation-based QALY impacts using the appropriate utility value for each health state (postop_vbt_utility for Postoperative VBT states, postop_fusion_utility for all Postoperative Fusion states). Procedure states would have zero utility as patients immediately transition to postoperative states.",
+    
+    "Procedure Disutility": "Temporary reduction in QALYs during procedure cycles. Applies flow-based QALY impacts when patients transition to any procedure state, representing the temporary disutility of undergoing surgery. This would be a negative adjustment to QALYs for the cycle in which a procedure occurs.",
+    
+    "Routine Follow-up Costs": "Ongoing healthcare costs for routine follow-up care. Applies occupation-based costs for patients in postoperative states, potentially differing between VBT and fusion patients based on follow-up requirements.",
+    
+    "Complication Costs": "Costs associated with managing complications that don't require revision surgery. Applies occupation-based costs in postoperative states, potentially at different rates for different procedures.",
+    
+    "Terminal Care Costs": "Additional costs that might be incurred when patients reach the Ineligible for Further Fusion state. Applies flow-based costs when patients transition to this absorbing state."
+}
+</event_recommendations>
+
+Note: Some of these events (particularly "Routine Follow-up Costs", "Complication Costs", and "Terminal Care Costs") may require additional parameters not currently specified in the available parameters list. The model would need to be expanded with these parameters if these aspects are important to capture.
+
+The events are designed to avoid double-counting while ensuring all relevant costs and utilities are captured. Each event represents a distinct mechanism or trigger for costs or QALYs, and the implementation would use the appropriate combination of occupation and flow impacts.
+
+================================================================================
+User:
+Great. We will now implement the Events you listed, one-by-one. 
+
+We will repeat two steps per Event:
+1) Conceptualise the Event precisely 
+2) Implement the Event in code.
+
+First, read through the detailed account of Event mechanics below (<event_mechanics></event_mechanics>). Then, read through guidance on how you can add additional parameters to the model if required (<adding_additional_parameters></adding_additional_parameters>). 
+
+<event_mechanics>
+- Each Event consists of:
+  (1) a calculation function:
+        def <get_event_name_impact>(ctx: EventContext) -> EventImpact
+  (2) an EventSpec that references it.
+- For the calculation function, you should use the following helpers (pre-defined, you do not need to build these)
+- impact = initialise_impact(ctx.health_states), to initialise the impact return
+- Occupancy impacts:
+    impact.cost_occupation.add("<STATE>", <cost_value>), to add a cost occupancy impact to a state
+    impact.qaly_occupation.add("<STATE>", <qaly_value>), to add a QALY occupancy impact to a state
+- Flow impacts:
+    impact.cost_flow.add("<ORIGIN_STATE>", "<DEST_STATE>", <cost_value>), to add a cost flow impact to a transition
+    impact.qaly_flow.add("<ORIGIN_STATE>", "<DEST_STATE>", <qaly_value>), to add a qaly flow impact to a transition
+</event_mechanics>
+
+<adding_additional_parameters>
+Importantly, you may be missing some parameters required to produce the calculation function of an event. If this is the case, you should add parameters with sensible, assumed values, during conceptualisation. These parameters will then be accessible through the context.params dictionary when you write the calculation function code.
+
+- To add parameters you must include a JSON array within <additional_parameters></additional_parameters> tags as part of your response to the conceptualisation prompt.
+- Each element must have the following fields:
+    - parameter_name: string
+    - value: number or null
+    - description: string 
+    - distribution: string or null
+    - standard_error: number or null
+    - notes: string (optional; include only if something is ambiguous)
+</adding_additional_parameters>
+
+Acknowledge, and I will provide the first Event to conceptualise and implement.
+
+
+================================================================================
+Assistant:
+I understand the process we'll follow to implement each Event:
+
+1. First, we'll conceptualize the Event precisely, defining what it represents and how it should work
+2. Then, we'll implement the Event in code using the provided mechanics
+3. If needed, I'll add additional parameters using the specified format
+
+I've read through the Event mechanics and understand how to:
+- Create calculation functions that return EventImpact objects
+- Use initialise_impact() to create the impact object
+- Add occupancy impacts for costs and QALYs
+- Add flow impacts for costs and QALYs
+- Reference the calculation function in an EventSpec
+
+I also understand how to add additional parameters when needed, using the specified JSON format within <additional_parameters> tags.
+
+I'm ready to proceed with implementing the first Event you provide.
+
+================================================================================
+User:
+Now conceptualise the following Event in detail.
+Please plan out the calculations you will programme. You should note all of the parameters you will be using, and any assumptions you will make. Importantly, you may be missing some parameters required to produce the generation function. If this is the case, you should use the mechanism described above to add these.
+
+
+Target Event:
+<current_event_name>
+Index Procedure Costs
+</current_event_name>
+
+Event description (from recommendations):
+<current_event_description>
+One-time costs incurred when patients enter the model and undergo their initial procedure. Applies flow costs when patients transition from the starting state to either VBT Index Procedure or Fusion Index Procedure states, depending on treatment arm. Includes both device costs (vbt_index_device_cost or fusion_device_cost) and non-device costs (non_device_cost).
+</current_event_description>
+
+Context:
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+<model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+<model_health_states>
+['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+</model_health_states>
+
+Return:
+- A clear conceptual plan in prose/bullets
+- Optionally <additional_parameters>...</additional_parameters> if needed
+
+
+================================================================================
+Assistant:
+# Index Procedure Costs - Conceptual Plan
+
+This event captures the one-time costs incurred when patients undergo their initial procedure (either VBT or spinal fusion). These costs should be applied as flow costs when patients transition from their initial procedure state to the corresponding postoperative state.
+
+## Key Considerations:
+- The model has two initial procedure states: "VBT Index Procedure" and "Spinal Fusion Index Procedure"
+- Patients transition from these states to "Postoperative VBT" and "Postoperative Fusion" respectively
+- The costs include both device costs and non-device costs
+- For VBT: vbt_index_device_cost + non_device_cost
+- For Spinal Fusion: fusion_device_cost + non_device_cost
+
+## Parameters to Use:
+- `non_device_cost`: $28,616 (applies to all procedures)
+- `fusion_device_cost`: $17,200 (for fusion procedures)
+- `vbt_index_device_cost`: $50,615 (for initial VBT procedure)
+
+## Implementation Plan:
+1. Initialize the impact object
+2. Calculate total VBT index procedure cost = vbt_index_device_cost + non_device_cost
+3. Calculate total fusion index procedure cost = fusion_device_cost + non_device_cost
+4. Apply these costs as flow impacts:
+   - From "VBT Index Procedure" to "Postoperative VBT"
+   - From "Spinal Fusion Index Procedure" to "Postoperative Fusion"
+
+## Assumptions:
+- The costs are applied once when patients transition from the procedure state to the postoperative state
+- All patients in the procedure state will transition to the corresponding postoperative state in the same cycle (as indicated by procedure_to_postop_prob = 1.0)
+- The costs are the same regardless of patient characteristics or time in the model
+
+I don't need any additional parameters for this event as all required parameters are already available in the model.
+
+================================================================================
+User:
+Now implement the Event in Python code, exactly as conceptualised.
+
+Requirements:
+- Always include the Event code within <final_code></final_code> tags.
+- The <final_code> block must contain exactly ONE Event function and exactly ONE EventSpec.
+- The Event function name should be stable and descriptive (snake_case, of the form get_<event_name>_impact
+- Use context.params["..."] for all parameter values; do not hard-code numbers.
+- Use occupancy vs flow impacts correctly:
+    - Occupancy impacts for costs/utilities that accrue while in a state.
+    - Flow impacts for costs/utilities that occur only when a transition happens.
+
+Return only:
+- Any thinking you require
+- <final_code>...</final_code> with exactly ONE Event function and exactly ONE EventSpec
+
+
+================================================================================
+Assistant:
+Let me implement the Index Procedure Costs event based on the conceptualization:
+
+<final_code>
+def get_index_procedure_costs_impact(context: EventContext) -> EventImpact:
+    """
+    Calculate the one-time costs incurred when patients undergo their initial procedure.
+    These costs are applied as flow impacts when patients transition from the procedure state
+    to the corresponding postoperative state.
+    """
+    impact = initialise_impact(context.health_states)
+    
+    # Calculate total costs for each procedure type
+    vbt_index_total_cost = float(context.params["vbt_index_device_cost"]) + float(context.params["non_device_cost"])
+    fusion_index_total_cost = float(context.params["fusion_device_cost"]) + float(context.params["non_device_cost"])
+    
+    # Apply costs as flow impacts when patients transition from procedure to postoperative states
+    impact.cost_flow.add("VBT Index Procedure", "Postoperative VBT", vbt_index_total_cost)
+    impact.cost_flow.add("Spinal Fusion Index Procedure", "Postoperative Fusion", fusion_index_total_cost)
+    
+    return impact
+
+index_procedure_costs_event = EventSpec(
+    event_name="Index Procedure Costs",
+    tags={"cost", "procedure"},
+    calculation_function=get_index_procedure_costs_impact,
+)
+</final_code>
+
+================================================================================
+User:
+Now conceptualise the following Event in detail.
+Please plan out the calculations you will programme. You should note all of the parameters you will be using, and any assumptions you will make. Importantly, you may be missing some parameters required to produce the generation function. If this is the case, you should use the mechanism described above to add these.
+
+
+Target Event:
+<current_event_name>
+VBT Revision Procedure Costs
+</current_event_name>
+
+Event description (from recommendations):
+<current_event_description>
+Costs incurred when patients undergo VBT revision. Applies flow costs when patients transition from Postoperative VBT to VBT Revision Procedure state. Includes both device costs (vbt_revision_device_cost) and non-device costs (non_device_cost).
+</current_event_description>
+
+Context:
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+<model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+<model_health_states>
+['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+</model_health_states>
+
+Return:
+- A clear conceptual plan in prose/bullets
+- Optionally <additional_parameters>...</additional_parameters> if needed
+
+
+================================================================================
+Assistant:
+# VBT Revision Procedure Costs - Conceptual Plan
+
+This event captures the costs incurred when patients undergo a VBT revision procedure. These costs should be applied as flow costs when patients transition from the "Postoperative VBT" state to the "VBT Revision" state.
+
+## Key Considerations:
+- Patients in the "Postoperative VBT" state may require a revision of their VBT procedure
+- When this occurs, they transition to the "VBT Revision" state
+- The costs include both device costs and non-device costs
+- For VBT revision: vbt_revision_device_cost + non_device_cost
+- After the revision procedure, patients will transition to a postoperative state
+
+## Parameters to Use:
+- `non_device_cost`: $28,616 (applies to all procedures)
+- `vbt_revision_device_cost`: $8,804 (for VBT revision procedures)
+
+## Implementation Plan:
+1. Initialize the impact object
+2. Calculate total VBT revision procedure cost = vbt_revision_device_cost + non_device_cost
+3. Apply this cost as a flow impact from "Postoperative VBT" to "VBT Revision"
+
+## Assumptions:
+- The costs are applied once when patients transition from the postoperative state to the revision state
+- After the revision procedure, patients will return to the "Postoperative VBT" state (based on the model health states provided)
+- I notice that there's no explicit "Postoperative VBT Revision" state in the model health states list, so I'm assuming patients return to the "Postoperative VBT" state after a VBT revision
+
+<additional_parameters>
+[
+  {
+    "parameter_name": "vbt_revision_to_postop_state",
+    "value": "Postoperative VBT",
+    "description": "The state patients transition to after VBT revision procedure",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Added because the model health states don't include a specific post-VBT revision state"
+  }
+]
+</additional_parameters>
+
+================================================================================
+User:
+Now implement the Event in Python code, exactly as conceptualised.
+
+Requirements:
+- Always include the Event code within <final_code></final_code> tags.
+- The <final_code> block must contain exactly ONE Event function and exactly ONE EventSpec.
+- The Event function name should be stable and descriptive (snake_case, of the form get_<event_name>_impact
+- Use context.params["..."] for all parameter values; do not hard-code numbers.
+- Use occupancy vs flow impacts correctly:
+    - Occupancy impacts for costs/utilities that accrue while in a state.
+    - Flow impacts for costs/utilities that occur only when a transition happens.
+
+Return only:
+- Any thinking you require
+- <final_code>...</final_code> with exactly ONE Event function and exactly ONE EventSpec
+
+
+================================================================================
+Assistant:
+For the VBT Revision Procedure Costs event, I'll implement a function that applies the costs as a flow impact when patients transition from "Postoperative VBT" to "VBT Revision" state. The cost will be the sum of the VBT revision device cost and the non-device cost.
+
+<final_code>
+def get_vbt_revision_procedure_costs_impact(context: EventContext) -> EventImpact:
+    """
+    Calculate the costs incurred when patients undergo VBT revision.
+    These costs are applied as flow impacts when patients transition from 
+    Postoperative VBT to VBT Revision state.
+    """
+    impact = initialise_impact(context.health_states)
+    
+    # Calculate total cost for VBT revision procedure
+    vbt_revision_total_cost = float(context.params["vbt_revision_device_cost"]) + float(context.params["non_device_cost"])
+    
+    # Apply cost as flow impact when patients transition from postoperative VBT to VBT revision
+    impact.cost_flow.add("Postoperative VBT", "VBT Revision", vbt_revision_total_cost)
+    
+    return impact
+
+vbt_revision_procedure_costs_event = EventSpec(
+    event_name="VBT Revision Procedure Costs",
+    tags={"cost", "procedure", "revision"},
+    calculation_function=get_vbt_revision_procedure_costs_impact,
+)
+</final_code>
+
+================================================================================
+User:
+Now conceptualise the following Event in detail.
+Please plan out the calculations you will programme. You should note all of the parameters you will be using, and any assumptions you will make. Importantly, you may be missing some parameters required to produce the generation function. If this is the case, you should use the mechanism described above to add these.
+
+
+Target Event:
+<current_event_name>
+Fusion Procedure Costs (Post-VBT)
+</current_event_name>
+
+Event description (from recommendations):
+<current_event_description>
+Costs incurred when VBT patients later undergo fusion. Applies flow costs when patients transition from Postoperative VBT to Fusion Index Procedure. Includes both device costs (fusion_device_cost) and non-device costs (non_device_cost).
+</current_event_description>
+
+Context:
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+<model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_to_postop_state": {
+    "value": "Postoperative VBT",
+    "description": "The state patients transition to after VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+<model_health_states>
+['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+</model_health_states>
+
+Return:
+- A clear conceptual plan in prose/bullets
+- Optionally <additional_parameters>...</additional_parameters> if needed
+
+
+================================================================================
+Assistant:
+# Fusion Procedure Costs (Post-VBT) - Conceptual Plan
+
+This event captures the costs incurred when patients who previously had VBT later undergo a spinal fusion procedure. These costs should be applied as flow costs when patients transition from the "Postoperative VBT" state to the "Spinal Fusion Index Procedure" state.
+
+## Key Considerations:
+- Patients in the "Postoperative VBT" state may later require a spinal fusion procedure
+- When this occurs, they transition to the "Spinal Fusion Index Procedure" state
+- The costs include both device costs and non-device costs
+- For fusion procedure: fusion_device_cost + non_device_cost
+- After the fusion procedure, patients will transition to the "Postoperative Fusion" state
+
+## Parameters to Use:
+- `non_device_cost`: $28,616 (applies to all procedures)
+- `fusion_device_cost`: $17,200 (for fusion procedures)
+
+## Implementation Plan:
+1. Initialize the impact object
+2. Calculate total fusion procedure cost = fusion_device_cost + non_device_cost
+3. Apply this cost as a flow impact from "Postoperative VBT" to "Spinal Fusion Index Procedure"
+
+## Assumptions:
+- The costs are applied once when patients transition from the "Postoperative VBT" state to the "Spinal Fusion Index Procedure" state
+- This represents patients who initially had VBT but later require a spinal fusion
+- After the fusion procedure, patients will transition to the "Postoperative Fusion" state (based on the model health states provided)
+- The cost of fusion is the same whether it's an initial procedure or following a VBT procedure
+
+No additional parameters are needed for this event as all required parameters are already available in the model.
+
+================================================================================
+User:
+Now implement the Event in Python code, exactly as conceptualised.
+
+Requirements:
+- Always include the Event code within <final_code></final_code> tags.
+- The <final_code> block must contain exactly ONE Event function and exactly ONE EventSpec.
+- The Event function name should be stable and descriptive (snake_case, of the form get_<event_name>_impact
+- Use context.params["..."] for all parameter values; do not hard-code numbers.
+- Use occupancy vs flow impacts correctly:
+    - Occupancy impacts for costs/utilities that accrue while in a state.
+    - Flow impacts for costs/utilities that occur only when a transition happens.
+
+Return only:
+- Any thinking you require
+- <final_code>...</final_code> with exactly ONE Event function and exactly ONE EventSpec
+
+
+================================================================================
+Assistant:
+For the Fusion Procedure Costs (Post-VBT) event, I'll implement a function that applies the costs as a flow impact when patients transition from "Postoperative VBT" to "Spinal Fusion Index Procedure" state. The cost will be the sum of the fusion device cost and the non-device cost.
+
+<final_code>
+def get_fusion_procedure_post_vbt_costs_impact(context: EventContext) -> EventImpact:
+    """
+    Calculate the costs incurred when VBT patients later undergo fusion.
+    These costs are applied as flow impacts when patients transition from 
+    Postoperative VBT to Spinal Fusion Index Procedure state.
+    """
+    impact = initialise_impact(context.health_states)
+    
+    # Calculate total cost for fusion procedure
+    fusion_total_cost = float(context.params["fusion_device_cost"]) + float(context.params["non_device_cost"])
+    
+    # Apply cost as flow impact when patients transition from postoperative VBT to fusion index procedure
+    impact.cost_flow.add("Postoperative VBT", "Spinal Fusion Index Procedure", fusion_total_cost)
+    
+    return impact
+
+fusion_procedure_post_vbt_costs_event = EventSpec(
+    event_name="Fusion Procedure Costs (Post-VBT)",
+    tags={"cost", "procedure"},
+    calculation_function=get_fusion_procedure_post_vbt_costs_impact,
+)
+</final_code>
+
+================================================================================
+User:
+Now conceptualise the following Event in detail.
+Please plan out the calculations you will programme. You should note all of the parameters you will be using, and any assumptions you will make. Importantly, you may be missing some parameters required to produce the generation function. If this is the case, you should use the mechanism described above to add these.
+
+
+Target Event:
+<current_event_name>
+Fusion Revision Procedure Costs
+</current_event_name>
+
+Event description (from recommendations):
+<current_event_description>
+Costs incurred when patients undergo fusion revision. Applies flow costs when patients transition to any fusion revision procedure state. Includes both device costs (fusion_device_cost) and non-device costs (non_device_cost).
+</current_event_description>
+
+Context:
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+<model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_to_postop_state": {
+    "value": "Postoperative VBT",
+    "description": "The state patients transition to after VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+<model_health_states>
+['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+</model_health_states>
+
+Return:
+- A clear conceptual plan in prose/bullets
+- Optionally <additional_parameters>...</additional_parameters> if needed
+
+
+================================================================================
+Assistant:
+# Fusion Revision Procedure Costs - Conceptual Plan
+
+This event captures the costs incurred when patients undergo fusion revision procedures. These costs should be applied as flow costs when patients transition to any fusion revision procedure state.
+
+## Key Considerations:
+- Based on the model health states, there are two fusion revision states:
+  - "Fusion Revision 1" (first revision)
+  - No explicit second revision procedure state in the health states list
+- Patients can transition to "Fusion Revision 1" from "Postoperative Fusion"
+- The costs include both device costs and non-device costs
+- For fusion revision: fusion_device_cost + non_device_cost
+- After the revision procedure, patients will transition to the corresponding postoperative state
+
+## Parameters to Use:
+- `non_device_cost`: $28,616 (applies to all procedures)
+- `fusion_device_cost`: $17,200 (for fusion procedures, including revisions)
+
+## Implementation Plan:
+1. Initialize the impact object
+2. Calculate total fusion revision procedure cost = fusion_device_cost + non_device_cost
+3. Apply this cost as flow impacts for transitions to fusion revision states:
+   - From "Postoperative Fusion" to "Fusion Revision 1"
+   - From "Postoperative Fusion Revision 1" to a second fusion revision state (which seems to be missing from the health states list)
+
+## Assumptions:
+- The costs are applied once when patients transition to a fusion revision procedure state
+- The cost of fusion revision is the same as the fusion device cost (no specific revision device cost is provided)
+- Based on the model description, there should be a second fusion revision state, but it's not explicitly listed in the health states. I'll need to add a parameter to handle this.
+
+<additional_parameters>
+[
+  {
+    "parameter_name": "fusion_revision_2_state",
+    "value": "Fusion Revision 2",
+    "description": "The state representing the second fusion revision procedure",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Added because the model description mentions two fusion revisions but the health states list doesn't explicitly include a second fusion revision procedure state"
+  }
+]
+</additional_parameters>
+
+================================================================================
+User:
+Now implement the Event in Python code, exactly as conceptualised.
+
+Requirements:
+- Always include the Event code within <final_code></final_code> tags.
+- The <final_code> block must contain exactly ONE Event function and exactly ONE EventSpec.
+- The Event function name should be stable and descriptive (snake_case, of the form get_<event_name>_impact
+- Use context.params["..."] for all parameter values; do not hard-code numbers.
+- Use occupancy vs flow impacts correctly:
+    - Occupancy impacts for costs/utilities that accrue while in a state.
+    - Flow impacts for costs/utilities that occur only when a transition happens.
+
+Return only:
+- Any thinking you require
+- <final_code>...</final_code> with exactly ONE Event function and exactly ONE EventSpec
+
+
+================================================================================
+Assistant:
+Looking at the health states list again, I notice there's no explicit "Fusion Revision 2" state, but there is a "Postoperative Fusion Revision 2" state. This suggests that the second fusion revision procedure might not be modeled as a separate state, or it might be missing from the list. I'll implement the event focusing on the transitions to "Fusion Revision 1" state, which is explicitly included in the health states list.
+
+<final_code>
+def get_fusion_revision_procedure_costs_impact(context: EventContext) -> EventImpact:
+    """
+    Calculate the costs incurred when patients undergo fusion revision.
+    These costs are applied as flow impacts when patients transition to 
+    fusion revision procedure states.
+    """
+    impact = initialise_impact(context.health_states)
+    
+    # Calculate total cost for fusion revision procedure
+    fusion_revision_total_cost = float(context.params["fusion_device_cost"]) + float(context.params["non_device_cost"])
+    
+    # Apply cost as flow impact when patients transition to fusion revision states
+    impact.cost_flow.add("Postoperative Fusion", "Fusion Revision 1", fusion_revision_total_cost)
+    
+    # Check if the second fusion revision state exists in the health states
+    if "Fusion Revision 2" in context.health_states:
+        impact.cost_flow.add("Postoperative Fusion Revision 1", "Fusion Revision 2", fusion_revision_total_cost)
+    # If not, but we have a parameter defining it, use that
+    elif "fusion_revision_2_state" in context.params:
+        second_revision_state = context.params["fusion_revision_2_state"]
+        if second_revision_state in context.health_states:
+            impact.cost_flow.add("Postoperative Fusion Revision 1", second_revision_state, fusion_revision_total_cost)
+    
+    return impact
+
+fusion_revision_procedure_costs_event = EventSpec(
+    event_name="Fusion Revision Procedure Costs",
+    tags={"cost", "procedure", "revision"},
+    calculation_function=get_fusion_revision_procedure_costs_impact,
+)
+</final_code>
+
+================================================================================
+User:
+Now conceptualise the following Event in detail.
+Please plan out the calculations you will programme. You should note all of the parameters you will be using, and any assumptions you will make. Importantly, you may be missing some parameters required to produce the generation function. If this is the case, you should use the mechanism described above to add these.
+
+
+Target Event:
+<current_event_name>
+Health State Utilities
+</current_event_name>
+
+Event description (from recommendations):
+<current_event_description>
+QALYs accrued based on time spent in each health state. Applies occupation-based QALY impacts using the appropriate utility value for each health state (postop_vbt_utility for Postoperative VBT states, postop_fusion_utility for all Postoperative Fusion states). Procedure states would have zero utility as patients immediately transition to postoperative states.
+</current_event_description>
+
+Context:
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+<model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_to_postop_state": {
+    "value": "Postoperative VBT",
+    "description": "The state patients transition to after VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_state": {
+    "value": "Fusion Revision 2",
+    "description": "The state representing the second fusion revision procedure",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+<model_health_states>
+['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+</model_health_states>
+
+Return:
+- A clear conceptual plan in prose/bullets
+- Optionally <additional_parameters>...</additional_parameters> if needed
+
+
+================================================================================
+Assistant:
+# Health State Utilities - Conceptual Plan
+
+This event captures the QALYs accrued based on time spent in each health state. It applies occupation-based QALY impacts using the appropriate utility value for each health state.
+
+## Key Considerations:
+- QALYs should be applied as occupation impacts (accrued while in a state)
+- Different health states have different utility values:
+  - Postoperative VBT: postop_vbt_utility (0.925)
+  - Postoperative Fusion states: postop_fusion_utility (0.875)
+  - Procedure states: zero utility (as patients immediately transition to postoperative states)
+  - Ineligible For Further Fusion Revision: needs a utility value (not specified in available parameters)
+- QALYs need to be adjusted for cycle length (3 months = 0.25 years)
+
+## Parameters to Use:
+- `postop_vbt_utility`: 0.925 (utility for Postoperative VBT state)
+- `postop_fusion_utility`: 0.875 (utility for all Postoperative Fusion states)
+- `cycle_length_{cycle_length_units}`: 3 months (need to convert to years)
+
+## Implementation Plan:
+1. Initialize the impact object
+2. Calculate the cycle length in years (3 months = 0.25 years)
+3. Apply utility values as occupation impacts for each health state:
+   - "Postoperative VBT": postop_vbt_utility * cycle_length_years
+   - "Postoperative Fusion": postop_fusion_utility * cycle_length_years
+   - "Postoperative Fusion Revision 1": postop_fusion_utility * cycle_length_years
+   - "Postoperative Fusion Revision 2": postop_fusion_utility * cycle_length_years
+   - "Ineligible For Further Fusion Revision": need to determine appropriate utility
+   - All procedure states: 0 (as patients immediately transition)
+
+## Assumptions:
+- Procedure states (VBT Index, Spinal Fusion Index, VBT Revision, Fusion Revision 1) have zero utility as patients immediately transition to postoperative states
+- All postoperative fusion states have the same utility value (postop_fusion_utility)
+- The utility for the "Ineligible For Further Fusion Revision" state is not specified in the available parameters
+- The cycle length needs to be converted from months to years for QALY calculations
+
+<additional_parameters>
+[
+  {
+    "parameter_name": "ineligible_fusion_utility",
+    "value": 0.85,
+    "description": "Utility for patients ineligible for further fusion revision",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Assumed to be slightly lower than postop_fusion_utility due to potential complications or reduced quality of life after multiple revisions"
+  },
+  {
+    "parameter_name": "cycle_length_years",
+    "value": 0.25,
+    "description": "Model cycle length in years (3 months = 0.25 years)",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Derived from cycle_length_{cycle_length_units} for QALY calculations"
+  }
+]
+</additional_parameters>
+
+================================================================================
+User:
+Now implement the Event in Python code, exactly as conceptualised.
+
+Requirements:
+- Always include the Event code within <final_code></final_code> tags.
+- The <final_code> block must contain exactly ONE Event function and exactly ONE EventSpec.
+- The Event function name should be stable and descriptive (snake_case, of the form get_<event_name>_impact
+- Use context.params["..."] for all parameter values; do not hard-code numbers.
+- Use occupancy vs flow impacts correctly:
+    - Occupancy impacts for costs/utilities that accrue while in a state.
+    - Flow impacts for costs/utilities that occur only when a transition happens.
+
+Return only:
+- Any thinking you require
+- <final_code>...</final_code> with exactly ONE Event function and exactly ONE EventSpec
+
+
+================================================================================
+Assistant:
+I'll implement the Health State Utilities event to apply the appropriate utility values to each health state as occupation impacts. I'll ensure that procedure states have zero utility and that all postoperative states have the correct utility values adjusted for cycle length.
+
+<final_code>
+def get_health_state_utilities_impact(context: EventContext) -> EventImpact:
+    """
+    Calculate QALYs accrued based on time spent in each health state.
+    Applies occupation-based QALY impacts using the appropriate utility value for each health state.
+    Procedure states have zero utility as patients immediately transition to postoperative states.
+    """
+    impact = initialise_impact(context.health_states)
+    
+    # Get cycle length in years (convert from months)
+    if "cycle_length_years" in context.params:
+        cycle_length_years = float(context.params["cycle_length_years"])
+    else:
+        cycle_length_months = float(context.params["cycle_length_{cycle_length_units}"])
+        cycle_length_years = cycle_length_months / 12.0
+    
+    # Apply utility values as occupation impacts for each health state
+    # Postoperative VBT state
+    impact.qaly_occupation.add("Postoperative VBT", 
+                              float(context.params["postop_vbt_utility"]) * cycle_length_years)
+    
+    # Postoperative Fusion states (all use the same utility value)
+    impact.qaly_occupation.add("Postoperative Fusion", 
+                              float(context.params["postop_fusion_utility"]) * cycle_length_years)
+    impact.qaly_occupation.add("Postoperative Fusion Revision 1", 
+                              float(context.params["postop_fusion_utility"]) * cycle_length_years)
+    impact.qaly_occupation.add("Postoperative Fusion Revision 2", 
+                              float(context.params["postop_fusion_utility"]) * cycle_length_years)
+    
+    # Ineligible For Further Fusion Revision state
+    if "ineligible_fusion_utility" in context.params:
+        impact.qaly_occupation.add("Ineligible For Further Fusion Revision", 
+                                  float(context.params["ineligible_fusion_utility"]) * cycle_length_years)
+    else:
+        # If parameter not available, use the same utility as postoperative fusion
+        impact.qaly_occupation.add("Ineligible For Further Fusion Revision", 
+                                  float(context.params["postop_fusion_utility"]) * cycle_length_years)
+    
+    # Procedure states have zero utility (no need to explicitly set as default is zero)
+    
+    return impact
+
+health_state_utilities_event = EventSpec(
+    event_name="Health State Utilities",
+    tags={"utility", "qaly"},
+    calculation_function=get_health_state_utilities_impact,
+)
+</final_code>
+
+================================================================================
+User:
+Now conceptualise the following Event in detail.
+Please plan out the calculations you will programme. You should note all of the parameters you will be using, and any assumptions you will make. Importantly, you may be missing some parameters required to produce the generation function. If this is the case, you should use the mechanism described above to add these.
+
+
+Target Event:
+<current_event_name>
+Procedure Disutility
+</current_event_name>
+
+Event description (from recommendations):
+<current_event_description>
+Temporary reduction in QALYs during procedure cycles. Applies flow-based QALY impacts when patients transition to any procedure state, representing the temporary disutility of undergoing surgery. This would be a negative adjustment to QALYs for the cycle in which a procedure occurs.
+</current_event_description>
+
+Context:
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+<model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_to_postop_state": {
+    "value": "Postoperative VBT",
+    "description": "The state patients transition to after VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_state": {
+    "value": "Fusion Revision 2",
+    "description": "The state representing the second fusion revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "ineligible_fusion_utility": {
+    "value": 0.85,
+    "description": "Utility for patients ineligible for further fusion revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_years": {
+    "value": 0.25,
+    "description": "Model cycle length in years (3 months = 0.25 years)",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+<model_health_states>
+['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+</model_health_states>
+
+Return:
+- A clear conceptual plan in prose/bullets
+- Optionally <additional_parameters>...</additional_parameters> if needed
+
+
+================================================================================
+Assistant:
+# Procedure Disutility - Conceptual Plan
+
+This event captures the temporary reduction in QALYs (disutility) that occurs when patients undergo surgical procedures. These disutilities should be applied as flow-based QALY impacts when patients transition to any procedure state.
+
+## Key Considerations:
+- Disutilities should be applied as flow impacts (occurring only during transitions)
+- Different procedures may have different disutility values:
+  - VBT Index Procedure
+  - Spinal Fusion Index Procedure
+  - VBT Revision
+  - Fusion Revision 1
+- The disutility represents the temporary reduction in quality of life due to surgery, recovery, and potential complications
+- These values are not specified in the available parameters
+
+## Parameters to Use:
+- `cycle_length_years`: 0.25 (to adjust disutility for cycle length)
+- Need to add disutility parameters for each procedure type
+
+## Implementation Plan:
+1. Initialize the impact object
+2. Apply disutility values as flow impacts for transitions to procedure states:
+   - Transitions to "VBT Index Procedure": vbt_index_disutility
+   - Transitions to "Spinal Fusion Index Procedure": fusion_index_disutility
+   - Transitions to "VBT Revision": vbt_revision_disutility
+   - Transitions to "Fusion Revision 1": fusion_revision_disutility
+3. Apply these disutilities to all possible transitions into procedure states
+
+## Assumptions:
+- The disutility is applied once when patients transition to a procedure state
+- The disutility values may differ by procedure type (VBT vs. fusion, index vs. revision)
+- The disutility is a negative value (reduction in QALYs)
+- The disutility should be adjusted for cycle length
+- Since patients immediately transition from procedure states to postoperative states, the disutility is applied only during the transition to the procedure state
+
+<additional_parameters>
+[
+  {
+    "parameter_name": "vbt_index_disutility",
+    "value": -0.1,
+    "description": "Temporary disutility associated with VBT index procedure",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Represents reduction in quality of life due to surgery, pain, and recovery"
+  },
+  {
+    "parameter_name": "fusion_index_disutility",
+    "value": -0.15,
+    "description": "Temporary disutility associated with spinal fusion index procedure",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Higher than VBT due to more invasive nature of fusion surgery"
+  },
+  {
+    "parameter_name": "vbt_revision_disutility",
+    "value": -0.12,
+    "description": "Temporary disutility associated with VBT revision procedure",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Slightly higher than index VBT due to complexity of revision"
+  },
+  {
+    "parameter_name": "fusion_revision_disutility",
+    "value": -0.18,
+    "description": "Temporary disutility associated with fusion revision procedure",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Higher than index fusion due to complexity of revision"
+  }
+]
+</additional_parameters>
+
+================================================================================
+User:
+Now implement the Event in Python code, exactly as conceptualised.
+
+Requirements:
+- Always include the Event code within <final_code></final_code> tags.
+- The <final_code> block must contain exactly ONE Event function and exactly ONE EventSpec.
+- The Event function name should be stable and descriptive (snake_case, of the form get_<event_name>_impact
+- Use context.params["..."] for all parameter values; do not hard-code numbers.
+- Use occupancy vs flow impacts correctly:
+    - Occupancy impacts for costs/utilities that accrue while in a state.
+    - Flow impacts for costs/utilities that occur only when a transition happens.
+
+Return only:
+- Any thinking you require
+- <final_code>...</final_code> with exactly ONE Event function and exactly ONE EventSpec
+
+
+================================================================================
+Assistant:
+For the Procedure Disutility event, I need to implement flow-based QALY impacts that represent the temporary reduction in quality of life when patients undergo surgical procedures. I'll apply these disutilities to all transitions into procedure states.
+
+<final_code>
+def get_procedure_disutility_impact(context: EventContext) -> EventImpact:
+    """
+    Calculate the temporary reduction in QALYs (disutility) when patients undergo surgical procedures.
+    Applies flow-based QALY impacts when patients transition to any procedure state.
+    """
+    impact = initialise_impact(context.health_states)
+    
+    # Get disutility values for each procedure type
+    vbt_index_disutility = float(context.params["vbt_index_disutility"])
+    fusion_index_disutility = float(context.params["fusion_index_disutility"])
+    vbt_revision_disutility = float(context.params["vbt_revision_disutility"])
+    fusion_revision_disutility = float(context.params["fusion_revision_disutility"])
+    
+    # Apply disutilities as flow impacts for all possible transitions to procedure states
+    # For VBT Index Procedure
+    for state in context.health_states:
+        if state != "VBT Index Procedure":  # Avoid self-transitions
+            impact.qaly_flow.add(state, "VBT Index Procedure", vbt_index_disutility)
+    
+    # For Spinal Fusion Index Procedure
+    for state in context.health_states:
+        if state != "Spinal Fusion Index Procedure":  # Avoid self-transitions
+            impact.qaly_flow.add(state, "Spinal Fusion Index Procedure", fusion_index_disutility)
+    
+    # For VBT Revision
+    impact.qaly_flow.add("Postoperative VBT", "VBT Revision", vbt_revision_disutility)
+    
+    # For Fusion Revision 1
+    impact.qaly_flow.add("Postoperative Fusion", "Fusion Revision 1", fusion_revision_disutility)
+    
+    # For Fusion Revision 2 (if it exists in health states)
+    if "Fusion Revision 2" in context.health_states:
+        impact.qaly_flow.add("Postoperative Fusion Revision 1", "Fusion Revision 2", fusion_revision_disutility)
+    
+    return impact
+
+procedure_disutility_event = EventSpec(
+    event_name="Procedure Disutility",
+    tags={"utility", "qaly", "disutility", "procedure"},
+    calculation_function=get_procedure_disutility_impact,
+)
+</final_code>
+
+================================================================================
+User:
+Now conceptualise the following Event in detail.
+Please plan out the calculations you will programme. You should note all of the parameters you will be using, and any assumptions you will make. Importantly, you may be missing some parameters required to produce the generation function. If this is the case, you should use the mechanism described above to add these.
+
+
+Target Event:
+<current_event_name>
+Routine Follow-up Costs
+</current_event_name>
+
+Event description (from recommendations):
+<current_event_description>
+Ongoing healthcare costs for routine follow-up care. Applies occupation-based costs for patients in postoperative states, potentially differing between VBT and fusion patients based on follow-up requirements.
+</current_event_description>
+
+Context:
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+<model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_to_postop_state": {
+    "value": "Postoperative VBT",
+    "description": "The state patients transition to after VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_state": {
+    "value": "Fusion Revision 2",
+    "description": "The state representing the second fusion revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "ineligible_fusion_utility": {
+    "value": 0.85,
+    "description": "Utility for patients ineligible for further fusion revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_years": {
+    "value": 0.25,
+    "description": "Model cycle length in years (3 months = 0.25 years)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_disutility": {
+    "value": -0.1,
+    "description": "Temporary disutility associated with VBT index procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_index_disutility": {
+    "value": -0.15,
+    "description": "Temporary disutility associated with spinal fusion index procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_disutility": {
+    "value": -0.12,
+    "description": "Temporary disutility associated with VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_disutility": {
+    "value": -0.18,
+    "description": "Temporary disutility associated with fusion revision procedure",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+<model_health_states>
+['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+</model_health_states>
+
+Return:
+- A clear conceptual plan in prose/bullets
+- Optionally <additional_parameters>...</additional_parameters> if needed
+
+
+================================================================================
+Assistant:
+# Routine Follow-up Costs - Conceptual Plan
+
+This event captures the ongoing healthcare costs for routine follow-up care that patients incur while in postoperative states. These costs should be applied as occupation-based costs for patients in all postoperative states.
+
+## Key Considerations:
+- Follow-up costs should be applied as occupation impacts (accrued while in a state)
+- Different postoperative states may have different follow-up requirements and costs:
+  - Postoperative VBT may require more frequent monitoring due to the nature of the tethering system
+  - Postoperative Fusion states may have different follow-up schedules
+  - Follow-up costs may decrease over time as patients stabilize
+- These follow-up costs are not specified in the available parameters
+
+## Parameters to Use:
+- Need to add parameters for follow-up costs in each postoperative state
+- May need to consider time-dependency of follow-up costs (higher initially, lower later)
+
+## Implementation Plan:
+1. Initialize the impact object
+2. Apply follow-up costs as occupation impacts for each postoperative state:
+   - "Postoperative VBT": vbt_followup_cost_quarterly
+   - "Postoperative Fusion": fusion_followup_cost_quarterly
+   - "Postoperative Fusion Revision 1": fusion_revision_followup_cost_quarterly
+   - "Postoperative Fusion Revision 2": fusion_revision_followup_cost_quarterly
+   - "Ineligible For Further Fusion Revision": ineligible_fusion_followup_cost_quarterly
+
+## Assumptions:
+- Follow-up costs are incurred in each cycle while patients are in postoperative states
+- Follow-up costs may differ between VBT and fusion patients due to different monitoring requirements
+- Follow-up costs for fusion revision states may be higher due to increased monitoring needs
+- Follow-up costs for the ineligible state may be higher due to potential complications
+- Follow-up costs are constant over time (could be refined in future versions to decrease over time)
+
+<additional_parameters>
+[
+  {
+    "parameter_name": "vbt_followup_cost_quarterly",
+    "value": 500,
+    "description": "Quarterly cost for routine follow-up care after VBT procedure",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Includes outpatient visits, imaging, and other routine monitoring"
+  },
+  {
+    "parameter_name": "fusion_followup_cost_quarterly",
+    "value": 400,
+    "description": "Quarterly cost for routine follow-up care after fusion procedure",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Includes outpatient visits, imaging, and other routine monitoring"
+  },
+  {
+    "parameter_name": "fusion_revision_followup_cost_quarterly",
+    "value": 600,
+    "description": "Quarterly cost for routine follow-up care after fusion revision",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Higher than standard fusion follow-up due to increased monitoring needs"
+  },
+  {
+    "parameter_name": "ineligible_fusion_followup_cost_quarterly",
+    "value": 800,
+    "description": "Quarterly cost for routine follow-up care for patients ineligible for further fusion",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Higher due to potential complications and more intensive management"
+  }
+]
+</additional_parameters>
+
+================================================================================
+User:
+Now implement the Event in Python code, exactly as conceptualised.
+
+Requirements:
+- Always include the Event code within <final_code></final_code> tags.
+- The <final_code> block must contain exactly ONE Event function and exactly ONE EventSpec.
+- The Event function name should be stable and descriptive (snake_case, of the form get_<event_name>_impact
+- Use context.params["..."] for all parameter values; do not hard-code numbers.
+- Use occupancy vs flow impacts correctly:
+    - Occupancy impacts for costs/utilities that accrue while in a state.
+    - Flow impacts for costs/utilities that occur only when a transition happens.
+
+Return only:
+- Any thinking you require
+- <final_code>...</final_code> with exactly ONE Event function and exactly ONE EventSpec
+
+
+================================================================================
+Assistant:
+For the Routine Follow-up Costs event, I'll implement occupation-based costs for patients in postoperative states, with different costs for different types of postoperative care.
+
+<final_code>
+def get_routine_followup_costs_impact(context: EventContext) -> EventImpact:
+    """
+    Calculate the ongoing healthcare costs for routine follow-up care.
+    Applies occupation-based costs for patients in postoperative states,
+    with different costs for VBT and fusion patients based on follow-up requirements.
+    """
+    impact = initialise_impact(context.health_states)
+    
+    # Apply follow-up costs as occupation impacts for each postoperative state
+    # Postoperative VBT
+    impact.cost_occupation.add("Postoperative VBT", 
+                              float(context.params["vbt_followup_cost_quarterly"]))
+    
+    # Postoperative Fusion
+    impact.cost_occupation.add("Postoperative Fusion", 
+                              float(context.params["fusion_followup_cost_quarterly"]))
+    
+    # Postoperative Fusion Revision 1
+    impact.cost_occupation.add("Postoperative Fusion Revision 1", 
+                              float(context.params["fusion_revision_followup_cost_quarterly"]))
+    
+    # Postoperative Fusion Revision 2
+    impact.cost_occupation.add("Postoperative Fusion Revision 2", 
+                              float(context.params["fusion_revision_followup_cost_quarterly"]))
+    
+    # Ineligible For Further Fusion Revision
+    impact.cost_occupation.add("Ineligible For Further Fusion Revision", 
+                              float(context.params["ineligible_fusion_followup_cost_quarterly"]))
+    
+    return impact
+
+routine_followup_costs_event = EventSpec(
+    event_name="Routine Follow-up Costs",
+    tags={"cost", "followup"},
+    calculation_function=get_routine_followup_costs_impact,
+)
+</final_code>
+
+================================================================================
+User:
+Now conceptualise the following Event in detail.
+Please plan out the calculations you will programme. You should note all of the parameters you will be using, and any assumptions you will make. Importantly, you may be missing some parameters required to produce the generation function. If this is the case, you should use the mechanism described above to add these.
+
+
+Target Event:
+<current_event_name>
+Complication Costs
+</current_event_name>
+
+Event description (from recommendations):
+<current_event_description>
+Costs associated with managing complications that don't require revision surgery. Applies occupation-based costs in postoperative states, potentially at different rates for different procedures.
+</current_event_description>
+
+Context:
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+<model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_to_postop_state": {
+    "value": "Postoperative VBT",
+    "description": "The state patients transition to after VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_state": {
+    "value": "Fusion Revision 2",
+    "description": "The state representing the second fusion revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "ineligible_fusion_utility": {
+    "value": 0.85,
+    "description": "Utility for patients ineligible for further fusion revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_years": {
+    "value": 0.25,
+    "description": "Model cycle length in years (3 months = 0.25 years)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_disutility": {
+    "value": -0.1,
+    "description": "Temporary disutility associated with VBT index procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_index_disutility": {
+    "value": -0.15,
+    "description": "Temporary disutility associated with spinal fusion index procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_disutility": {
+    "value": -0.12,
+    "description": "Temporary disutility associated with VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_disutility": {
+    "value": -0.18,
+    "description": "Temporary disutility associated with fusion revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_followup_cost_quarterly": {
+    "value": 500,
+    "description": "Quarterly cost for routine follow-up care after VBT procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_followup_cost_quarterly": {
+    "value": 400,
+    "description": "Quarterly cost for routine follow-up care after fusion procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_followup_cost_quarterly": {
+    "value": 600,
+    "description": "Quarterly cost for routine follow-up care after fusion revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "ineligible_fusion_followup_cost_quarterly": {
+    "value": 800,
+    "description": "Quarterly cost for routine follow-up care for patients ineligible for further fusion",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+<model_health_states>
+['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+</model_health_states>
+
+Return:
+- A clear conceptual plan in prose/bullets
+- Optionally <additional_parameters>...</additional_parameters> if needed
+
+
+================================================================================
+Assistant:
+# Complication Costs - Conceptual Plan
+
+This event captures the costs associated with managing complications that don't require revision surgery. These costs should be applied as occupation-based costs for patients in postoperative states, with potentially different rates for different procedures.
+
+## Key Considerations:
+- Complication costs should be applied as occupation impacts (accrued while in a state)
+- Different postoperative states may have different complication rates and associated costs:
+  - VBT may have specific complications like tether breakage or loosening that don't require revision
+  - Fusion may have complications like adjacent segment disease, pseudarthrosis, or hardware-related issues
+  - Revision states may have higher complication rates due to increased complexity
+- These complication costs are not specified in the available parameters
+- Complication costs should represent the expected cost per cycle (probability of complication × cost per complication)
+
+## Parameters to Use:
+- Need to add parameters for complication rates and costs in each postoperative state
+
+## Implementation Plan:
+1. Initialize the impact object
+2. For each postoperative state:
+   - Calculate expected complication cost = complication_rate × complication_cost
+   - Apply this expected cost as an occupation impact
+
+## Assumptions:
+- Complications that don't require revision surgery still incur costs for management
+- Complication rates may differ between VBT and fusion patients
+- Complication rates may be higher after revision procedures
+- Complication rates may be highest for patients in the ineligible state
+- Complication costs are constant over time (could be refined in future versions)
+
+<additional_parameters>
+[
+  {
+    "parameter_name": "vbt_complication_rate_quarterly",
+    "value": 0.03,
+    "description": "Quarterly probability of non-revision complications after VBT",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Includes complications like tether breakage or loosening that don't require revision"
+  },
+  {
+    "parameter_name": "fusion_complication_rate_quarterly",
+    "value": 0.02,
+    "description": "Quarterly probability of non-revision complications after fusion",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Includes complications like adjacent segment disease or hardware-related issues"
+  },
+  {
+    "parameter_name": "fusion_revision_complication_rate_quarterly",
+    "value": 0.04,
+    "description": "Quarterly probability of non-revision complications after fusion revision",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Higher than standard fusion due to increased complexity"
+  },
+  {
+    "parameter_name": "ineligible_fusion_complication_rate_quarterly",
+    "value": 0.06,
+    "description": "Quarterly probability of complications for patients ineligible for further fusion",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Highest rate due to multiple previous surgeries and potential chronic issues"
+  },
+  {
+    "parameter_name": "complication_management_cost",
+    "value": 2500,
+    "description": "Average cost to manage a non-revision complication",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Includes outpatient visits, imaging, medications, physical therapy, and other interventions"
+  }
+]
+</additional_parameters>
+
+================================================================================
+User:
+Now implement the Event in Python code, exactly as conceptualised.
+
+Requirements:
+- Always include the Event code within <final_code></final_code> tags.
+- The <final_code> block must contain exactly ONE Event function and exactly ONE EventSpec.
+- The Event function name should be stable and descriptive (snake_case, of the form get_<event_name>_impact
+- Use context.params["..."] for all parameter values; do not hard-code numbers.
+- Use occupancy vs flow impacts correctly:
+    - Occupancy impacts for costs/utilities that accrue while in a state.
+    - Flow impacts for costs/utilities that occur only when a transition happens.
+
+Return only:
+- Any thinking you require
+- <final_code>...</final_code> with exactly ONE Event function and exactly ONE EventSpec
+
+
+================================================================================
+Assistant:
+For the Complication Costs event, I'll implement occupation-based costs for managing complications that don't require revision surgery. I'll calculate the expected cost per cycle for each postoperative state based on the complication rate and management cost.
+
+<final_code>
+def get_complication_costs_impact(context: EventContext) -> EventImpact:
+    """
+    Calculate costs associated with managing complications that don't require revision surgery.
+    Applies occupation-based costs in postoperative states, with different rates for different procedures.
+    """
+    impact = initialise_impact(context.health_states)
+    
+    # Get the complication management cost
+    complication_management_cost = float(context.params["complication_management_cost"])
+    
+    # Calculate and apply expected complication costs for each postoperative state
+    
+    # Postoperative VBT
+    vbt_complication_rate = float(context.params["vbt_complication_rate_quarterly"])
+    vbt_expected_complication_cost = vbt_complication_rate * complication_management_cost
+    impact.cost_occupation.add("Postoperative VBT", vbt_expected_complication_cost)
+    
+    # Postoperative Fusion
+    fusion_complication_rate = float(context.params["fusion_complication_rate_quarterly"])
+    fusion_expected_complication_cost = fusion_complication_rate * complication_management_cost
+    impact.cost_occupation.add("Postoperative Fusion", fusion_expected_complication_cost)
+    
+    # Postoperative Fusion Revision 1 and 2
+    fusion_revision_complication_rate = float(context.params["fusion_revision_complication_rate_quarterly"])
+    fusion_revision_expected_complication_cost = fusion_revision_complication_rate * complication_management_cost
+    impact.cost_occupation.add("Postoperative Fusion Revision 1", fusion_revision_expected_complication_cost)
+    impact.cost_occupation.add("Postoperative Fusion Revision 2", fusion_revision_expected_complication_cost)
+    
+    # Ineligible For Further Fusion Revision
+    ineligible_complication_rate = float(context.params["ineligible_fusion_complication_rate_quarterly"])
+    ineligible_expected_complication_cost = ineligible_complication_rate * complication_management_cost
+    impact.cost_occupation.add("Ineligible For Further Fusion Revision", ineligible_expected_complication_cost)
+    
+    return impact
+
+complication_costs_event = EventSpec(
+    event_name="Complication Costs",
+    tags={"cost", "complication"},
+    calculation_function=get_complication_costs_impact,
+)
+</final_code>
+
+================================================================================
+User:
+Now conceptualise the following Event in detail.
+Please plan out the calculations you will programme. You should note all of the parameters you will be using, and any assumptions you will make. Importantly, you may be missing some parameters required to produce the generation function. If this is the case, you should use the mechanism described above to add these.
+
+
+Target Event:
+<current_event_name>
+Terminal Care Costs
+</current_event_name>
+
+Event description (from recommendations):
+<current_event_description>
+Additional costs that might be incurred when patients reach the Ineligible for Further Fusion state. Applies flow-based costs when patients transition to this absorbing state.
+</current_event_description>
+
+Context:
+<model_description>
+Decision Problem
+Decision problem statement
+The aim of the analysis is to investigate whether VBT (anterior vertebral body tethering) is cost-effective as a first-choice surgical treatment option for pediatric patients with moderate to severe idiopathic scoiliosis who have failed nonoperative management, from a US perspective. The analysis should compare VBT to spinal fusion from the perspective of the US integrated healthcare delivery system (IDS).
+Time horizon, cycle length, and discounting
+15-year time-horizon, 3-month cycle length. Annual discounting of costs and effects of 3%.
+Treatment strategies
+Intervention: VBT, comparator: spinal fusion.
+Health states
+Patients enter the model in the spinal fusion or VBT index procedure health state. Devise health states based on the transitions described. 
+Transition probabilities
+Patients enter the model in the index spinal fusion or VBT index procedure health state depending on treatment arm. From this state, patients transition to the postoperative health states. The postoperative VBT health state represents patients who have had an index VBT operation. In the postoperative VBT health state patients who received VBT can experience VBT revision or an index fusion procedure. Once a patient has experienced an index fusion procedure they move to the postoperative index fusion health state. From here, they may experience up to two total revisions (modelled by two further fusion revision health states, with specific post operative states following these). If a patient in the postoperative state for the second fusion revision requires a further revision, they move to the absorbing ineligible fusion state. 
+Costs
+Index procedure costs
+See provided data. For first index procedures, should be upon entry to the model. 
+Revision procedure costs
+See provided data
+
+
+
+Utilities
+Health state utilities
+See provided data.
+<model_description>
+
+<available_parameters>
+{
+  "vbt_revision_prob_2yr": {
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_q1": {
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_to_fusion_prob_subsequent": {
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "preop_utility": {
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_vbt_utility": {
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "postop_fusion_utility": {
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  "non_device_cost": {
+    "value": 28616.0,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_device_cost": {
+    "value": 17200.0,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_device_cost": {
+    "value": 50615.0,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_device_cost": {
+    "value": 8804.0,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_{cycle_length_units}": {
+    "value": 3,
+    "description": "Model cycle length months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "time_horizon_years": {
+    "value": 10,
+    "description": "Model time horizon months",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_qalys": {
+    "value": 0.05,
+    "description": "Yearly discount rate for QALYs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "discount_rate_costs": {
+    "value": 0.05,
+    "description": "Yearly discount rate for costs",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_prob_quarterly": {
+    "value": 0.0077,
+    "description": "Quarterly probability of VBT revision (derived from 2-year probability)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "procedure_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from procedure state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "revision_to_postop_prob": {
+    "value": 1.0,
+    "description": "Probability of transitioning from revision state to corresponding postoperative state",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_q1": {
+    "value": 0.0169,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (first quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_to_ineligible_prob_subsequent": {
+    "value": 0.0022,
+    "description": "Quarterly probability of becoming ineligible for further fusion revision (more than one quarter after second revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_to_postop_state": {
+    "value": "Postoperative VBT",
+    "description": "The state patients transition to after VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_2_state": {
+    "value": "Fusion Revision 2",
+    "description": "The state representing the second fusion revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "ineligible_fusion_utility": {
+    "value": 0.85,
+    "description": "Utility for patients ineligible for further fusion revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "cycle_length_years": {
+    "value": 0.25,
+    "description": "Model cycle length in years (3 months = 0.25 years)",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_index_disutility": {
+    "value": -0.1,
+    "description": "Temporary disutility associated with VBT index procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_index_disutility": {
+    "value": -0.15,
+    "description": "Temporary disutility associated with spinal fusion index procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_revision_disutility": {
+    "value": -0.12,
+    "description": "Temporary disutility associated with VBT revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_disutility": {
+    "value": -0.18,
+    "description": "Temporary disutility associated with fusion revision procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_followup_cost_quarterly": {
+    "value": 500,
+    "description": "Quarterly cost for routine follow-up care after VBT procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_followup_cost_quarterly": {
+    "value": 400,
+    "description": "Quarterly cost for routine follow-up care after fusion procedure",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_followup_cost_quarterly": {
+    "value": 600,
+    "description": "Quarterly cost for routine follow-up care after fusion revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "ineligible_fusion_followup_cost_quarterly": {
+    "value": 800,
+    "description": "Quarterly cost for routine follow-up care for patients ineligible for further fusion",
+    "distribution": null,
+    "standard_error": null
+  },
+  "vbt_complication_rate_quarterly": {
+    "value": 0.03,
+    "description": "Quarterly probability of non-revision complications after VBT",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_complication_rate_quarterly": {
+    "value": 0.02,
+    "description": "Quarterly probability of non-revision complications after fusion",
+    "distribution": null,
+    "standard_error": null
+  },
+  "fusion_revision_complication_rate_quarterly": {
+    "value": 0.04,
+    "description": "Quarterly probability of non-revision complications after fusion revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  "ineligible_fusion_complication_rate_quarterly": {
+    "value": 0.06,
+    "description": "Quarterly probability of complications for patients ineligible for further fusion",
+    "distribution": null,
+    "standard_error": null
+  },
+  "complication_management_cost": {
+    "value": 2500,
+    "description": "Average cost to manage a non-revision complication",
+    "distribution": null,
+    "standard_error": null
+  }
+}
+</available_parameters>
+
+<model_health_states>
+['Spinal Fusion Index Procedure', 'VBT Index Procedure', 'Postoperative VBT', 'Postoperative Fusion', 'VBT Revision', 'Fusion Revision 1', 'Postoperative Fusion Revision 1', 'Postoperative Fusion Revision 2', 'Ineligible For Further Fusion Revision']
+</model_health_states>
+
+Return:
+- A clear conceptual plan in prose/bullets
+- Optionally <additional_parameters>...</additional_parameters> if needed
+
+
+================================================================================
+Assistant:
+# Terminal Care Costs - Conceptual Plan
+
+This event captures the additional one-time costs incurred when patients reach the "Ineligible For Further Fusion Revision" state, which is an absorbing state in the model. These costs should be applied as flow-based costs when patients transition to this state.
+
+## Key Considerations:
+- Terminal care costs should be applied as flow impacts (occurring only during transitions)
+- These costs represent the additional medical interventions, consultations, and potential palliative care needed when patients can no longer undergo further fusion revisions
+- Patients can transition to the "Ineligible For Further Fusion Revision" state from "Postoperative Fusion Revision 2"
+- These terminal care costs are not specified in the available parameters
+
+## Parameters to Use:
+- Need to add a parameter for the terminal care cost
+
+## Implementation Plan:
+1. Initialize the impact object
+2. Apply the terminal care cost as a flow impact for transitions to the "Ineligible For Further Fusion Revision" state
+3. This should apply to transitions from "Postoperative Fusion Revision 2" to "Ineligible For Further Fusion Revision"
+
+## Assumptions:
+- The terminal care cost is a one-time cost applied when patients transition to the ineligible state
+- This cost represents additional medical interventions, consultations, and potential palliative care
+- This cost is separate from the ongoing follow-up and complication costs that are applied as occupation impacts in the ineligible state
+- The cost is the same regardless of the patient's history (whether they started with VBT or fusion)
+
+<additional_parameters>
+[
+  {
+    "parameter_name": "terminal_care_cost",
+    "value": 15000,
+    "description": "One-time cost incurred when patients become ineligible for further fusion revision",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Includes additional consultations, imaging, pain management, and potential palliative care planning"
+  }
+]
+</additional_parameters>
+
+================================================================================

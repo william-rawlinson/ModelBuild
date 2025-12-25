@@ -1,0 +1,147 @@
+
+================================================================================
+User:
+We are going to work together to code a health economic Markov model in Python. The model will be built using a framework. The framework uses parameters, transitions, Events, and a generic runner. For now, your task is to create a set of Events we can use for the model. To do this, first read the description of Events and their role in detail. 
+
+<events_and_their_role>
+-   In each model cycle, Events are evaluated to determine cost and QALY impacts for that cycle and treatment arm.
+-   An Event can contribute impacts in two distinct ways:
+-       Occupancy impacts: per-patient costs and QALYs accrued while patients occupy particular health states (represented as vectors over health states).
+-       transition impacts: per-transition costs and QALYs accrued when patients move from one health state to another
+within the cycle (represented as matrices over state→state transitions).
+-   Event calculation functions may depend on the model cycle, treatment arm, and model parameters
+-   The generic runner combines state occupancies and the model’s transition matrix to convert Event impacts into
+cohort-level costs and QALYs for each cycle, aggregates these over time, and applies all discounting.
+</events_and_their_role>
+
+<defining_a_good_set_of_events>
+-   Each distinct real-world mechanism/trigger (e.g., an adverse event occurrence, a procedure, a progression episode, a monitoring visit, the accrual of health-state utilities) should be represented by exactly one Event. That Event may include both cost and QALY impacts (and both occupancy and flow components) so the trigger/event rate is calculated once and its full consequences are applied together.
+-   Avoid duplicating the same event-rate logic across multiple Events. If an event has both cost and QALY consequences, keep them in the same Event so the probability/rate is computed once and applied consistently.
+-   Overlapping Events that describe the same consequence will result in double counting and must be avoided.
+-   Events must not attempt to define or reproduce transition probabilities. If a cost or QALY impact is conditional on a transition occurring, it must be expressed as a flow impact rather than by recalculating transition probabilities within the Event.
+-   Events must serve no purpose other than defining per-patient cost and/or QALY impacts
+(via occupancy and/or flow). They must not update state occupancies, apply discounting,
+or implement other model mechanics.
+-   A good set of Events is not overly granular. For example:
+        a single Event can define baseline health-state utilities across multiple states, and a single Event can define         several related flow impacts across multiple transitions.
+-   Events may include both occupancy and flow components when this reflects the real-world process
+(e.g., a base treatment cost while in a state plus an additional cost triggered when a transition occurs).
+In such cases, these components should be kept within a single Event unless there is a clear reason to split them.
+</defining_a_good_set_of_events>
+
+Two simple Events are provided below to illustrate the concept (see <simple_event_examples></simple_event_example>s).
+
+<simple_event_examples>
+def progression_cost_event(context: EventContext) -> EventImpact:
+    impact = initialise_impact(context.health_states)
+
+    cost = float(context.params["progression_cost"])
+    impact.cost_flow.add("PFS", "PPS", cost) # cost incurred upon transition from PFS to PPS
+
+    return impact
+
+progression_cost_event = EventSpec(
+    event_name="Treatment cost",
+    tags={"cost"},
+    calculation_function=progression_cost_event,
+)
+
+def healthstate_utility_event(ctx: EventContext) -> EventImpact:
+    impact = initialise_impact(ctx.health_states)
+    cycle_length = float(ctx.params["cycle_length"])
+
+    impact.utility_occupation.add("PFS", float(ctx.params["pfs_utility"]) * cycle_length) # QALY accrued upon occupying PFS
+    impact.utility_occupation.add("PPS", float(ctx.params["pps_utility"]) * cycle_length) # QALY accrued upon occupying PPS
+
+    # Death stays 0
+    return impact
+
+healthstate_utility_event = EventSpec(
+    event_name="Health state utility",
+    tags={"utility"},
+    calculation_function=baseline_utility_event,
+)
+</simple_event_examples>
+
+Now, demarcated by <model_description></model_description> tags is a description of the model we are aiming to build. Demarcated by <available_parameters></available_parameters> is an initial set of parameters that we can use to build the model (note, we will add to this set of parameters if required). Based on the description and parameter set, please devise a list of Events we can use for the model. First, do some thinking to work out the best set of events to use. Then, return a dictionary where each key is an Event name, and each value is a description of what the event is. Return your dictionary in <event_recommendations></event_recommendations> tags. 
+
+<model_description>
+Decision Problem
+Decision problem statement
+A cost-utility Markov analysis from a UK NHS and personal social services perspective. The population entering the model is people who have been using benzodiazepine for over 3 months and are unable to quit their usage by themselves.
+Time horizon, cycle length, and discounting
+Discounting of 3.5% for costs and effects. The model should use a cycle length of 1 year and a time horizon of 50 years. 
+Treatment strategies
+The intervention is CBT + TO (group cognitive behavioral therapy plus tapering off).  There are two comparators: TOA (tapering off alone) and UC (usual care – defined as the continuation of standard therapy with benzodiazepines with no attempt to reduce or discontinue it). 
+Health states
+The model should use seven health states. ‘Abstinent’, ‘on benzodiazepines’, ‘hip fracture acute’, ‘post-hip fracture’, ‘dementia 1st year’,  ‘dementia long-term’, and ‘Death’. ‘Dementia 1st year’ is a 1-year tunnel state for the upfront impact of dementia diagnosis. ‘hip-fracture acute’ is a 1-year tunnel state for the upfront impact of a hip fracture. 
+Patients enter the model in the ‘abstinent’ or ‘on benzodiazepine’ states based on the effectiveness of the treatments, defined by cessation probabilities (e.g., cessation means a patient enters the model in the abstinent state, otherwise they enter the model in the on-benzodiazepine state). The TOA cessation probability is given, cessation probabilities should be calculated using the cessation risk ratios for the other treatments. 
+Transition probabilities
+Abstinent patients have a risk of relapse (transition to ‘on benzodiazepines’) during the first two years. Afterwards they cannot relapse. Patients in the ‘on-benzodiazepines’ state cannot become abstinent. Relapse rates during the first two years differ between treatments (see provided datapoints).
+Abstinent patients or patients on benzodiazepines can experience hip fracture or dementia, if this happens, they immediately stop taking benzodiazepines (if they were) and cannot relapse. All patients that experience a hip fracture pass through the hip fracture acute health state, and then remain in the post-hip fracture state for the rest of the model time horizon (an absorbing state). All patients that experience dementia pass through the dementia 1st year health state, and then remain in the dementia long-term state for the rest of the model time horizon (an absorbing state). 
+Hip fracture annual probabilities are provided for women and men by age-group.
+Patients can transition to the death state (an absorbing state) from any health state. Baseline mortality should be determined using the provided lifetable data. Relative effects are provided for the dementia and hip fracture health states, which have higher mortality. 
+Costs
+Falls and hip fracture costs
+Falls can occur in any health state. A fall rate per person per year is provided for men and women over 65, as well as age-specific incident rate ratios. For patients under 65, make appropriate assumptions based on the data. Data to calculate fall costs based on the probability of different fall consequences is provided. Assume hip fractures can only be the consequence of a fall, so the number of hip fractures in each cycle should be subtracted from the number of falls to avoid double counting.
+An annual hip fracture cost is provided for the acute state and post hip-fracture state.
+Intervention and comparator costs
+The cost for each treatment should be applied once in the first model cycle (as treatment ends at the start of the model). Usual care is assumed to have no cost. The cost of CBT + TO should be the sum of the cost of CBT and the cost of TO provided.
+Benzodiazepines costs
+The cost of benzodiazepines should be calculated as a weighted average based on the provided daily mg, cost per mg, and proportion taking datapoints.
+Dementia costs
+Separate annual costs are provided for each classification of dementia (mild, moderate, sever) and for each of the first year (Dementia 1st year) and subsequent years (Dementia long term). 
+Age-dependent annual costs for the health states should be calculated as a weighted average over mild, moderate, and severe dementia, based on the proportion falling into each classification within each age category.
+Utilities
+
+Health state utilities
+The same baseline health state utility is used for all health states aside from the dementia health states. In the first 2 cycles, treatment dependent baseline utilities are used. In subsequent cycles, all patients (in whatever treatment arm) have the UC (usual care) baseline utility.
+For the dementia health states, age-dependent baseline utility should be calculated based on the caregiver-proxy utilities as a weighted average over mild, moderate, and severe dementia, based on the proportion falling into each classification within each age category. 
+Baseline utilities for every health state should be adjusted by age. To do this, use the Ara and Brazier algorithm provided below, where ‘male’ is 1 for males and 0 for females. First, calculate the ratio of the baseline utility for a health state to the UK general population utility (at the model’s starting age). Then, the age-dependent utilities for that health state can be calculated by multiplying that same ratio against the UK general population utilities for other ages. 
+UK general population utility = 0.9508566 + 0.0212126*male - 0.0002587*age - 0.0000332*ageˆ2
+
+Falls and hip fracture disutility
+The incidence of falls is dealt with in the ‘fall and hip fracture costs’ section. Some of the fall consequences are associated with a one-cycle disutility.
+Hip fracture disutilities should be modelled based on health state membership. Data has been provided for an annual disutility in the acute hip fracture state, and a permanent recurring annual disutility for the post-hip fracture state.
+
+</model_description>
+
+<available_parameters>
+[{'description': 'Percentage of females in starting cohort', 'base_case_value': '0.620', 'distribution': '', 'standard_error': ''}, {'description': 'Starting age', 'base_case_value': '62.000', 'distribution': '', 'standard_error': ''}, {'description': 'TOA cessation probability', 'base_case_value': '0.526', 'distribution': '', 'standard_error': ''}, {'description': 'CBT + TO vs TOA cessation risk ratio', 'base_case_value': '1.460', 'distribution': '', 'standard_error': ''}, {'description': 'TOA vs UC cessation risk ratio', 'base_case_value': '4.190', 'distribution': '', 'standard_error': ''}, {'description': 'TOA relapse probability cycle 1', 'base_case_value': '0.270', 'distribution': '', 'standard_error': ''}, {'description': 'CBT + TO relapse probability cycle 1', 'base_case_value': '0.330', 'distribution': '', 'standard_error': ''}, {'description': 'UC relapse probability cycle 1', 'base_case_value': '0.000', 'distribution': '', 'standard_error': ''}, {'description': 'TOA relapse probability cycle 2', 'base_case_value': '0.180', 'distribution': '', 'standard_error': ''}, {'description': 'CBT + TO relapse probability cycle 2', 'base_case_value': '0.070', 'distribution': '', 'standard_error': ''}, {'description': 'UC relapse probability cycle 2', 'base_case_value': '0.000', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 51-60, Men', 'base_case_value': '0.000', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 61-70, Men', 'base_case_value': '0.001', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 71-80, Men', 'base_case_value': '0.002', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 81-90, Men', 'base_case_value': '0.006', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 91+, Men', 'base_case_value': '0.016', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 51-60, Women', 'base_case_value': '0.000', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 61-70, Women', 'base_case_value': '0.001', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 71-80, Women', 'base_case_value': '0.004', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 81-90, Women', 'base_case_value': '0.012', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture annual probability, age 91+, Women', 'base_case_value': '0.024', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia mortality risk ratio', 'base_case_value': '1.710', 'distribution': '', 'standard_error': ''}, {'description': 'Acute hip fracture mortality hazard ratio, men', 'base_case_value': '3.700', 'distribution': '', 'standard_error': ''}, {'description': 'Acute hip fracture mortality hazard ratio, women', 'base_case_value': '2.870', 'distribution': '', 'standard_error': ''}, {'description': 'Post hip fracture mortality hazard ratio, men', 'base_case_value': '1.900', 'distribution': '', 'standard_error': ''}, {'description': 'Post hip fracture mortality hazard ratio, women', 'base_case_value': '1.860', 'distribution': '', 'standard_error': ''}, {'description': 'Fall rate per person per year (older than 65), Men', 'base_case_value': '0.392', 'distribution': '', 'standard_error': '0.20'}, {'description': 'Fall rate per person per year (older than 65), Women', 'base_case_value': '0.505', 'distribution': '', 'standard_error': '0.21'}, {'description': 'Fall incidence rate ratio, age 65-69, Men', 'base_case_value': '1.000', 'distribution': '', 'standard_error': ''}, {'description': 'Fall incidence rate ratio, age 70-74, Men', 'base_case_value': '1.271', 'distribution': '', 'standard_error': ''}, {'description': 'Fall incidence rate ratio, age 75-79, Men', 'base_case_value': '1.136', 'distribution': '', 'standard_error': ''}, {'description': 'Fall incidence rate ratio, age 80-84, Men', 'base_case_value': '1.644', 'distribution': '', 'standard_error': ''}, {'description': 'Fall incidence rate ratio, age 85+, Men', 'base_case_value': '2.814', 'distribution': '', 'standard_error': ''}, {'description': 'Fall incidence rate ratio, age 65-69, Women', 'base_case_value': '1.000', 'distribution': '', 'standard_error': ''}, {'description': 'Fall incidence rate ratio, age 70-74, Women', 'base_case_value': '1.036', 'distribution': '', 'standard_error': ''}, {'description': 'Fall incidence rate ratio, age 75-79, Women', 'base_case_value': '1.069', 'distribution': '', 'standard_error': ''}, {'description': 'Fall incidence rate ratio, age 80-84, Women', 'base_case_value': '1.518', 'distribution': '', 'standard_error': ''}, {'description': 'Fall incidence rate ratio, age 85+, Women', 'base_case_value': '1.855', 'distribution': '', 'standard_error': ''}, {'description': 'Serious fall percentage of total falls', 'base_case_value': '0.200', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, GP attendance percentage of serious falls', 'base_case_value': '0.510', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, ambulance call-out percentage of serious falls', 'base_case_value': '0.610', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, A&E attendance percentage of serious falls', 'base_case_value': '0.800', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, Admissions percentage of A&E attendances', 'base_case_value': '0.350', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, Re-admissions percentage of admissions', 'base_case_value': '0.070', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, Discharged at home percentage of admissions', 'base_case_value': '0.640', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, short-term residential care discharge percentage of admissions', 'base_case_value': '0.210', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, long-term residential care discharge percentage of admissions', 'base_case_value': '0.150', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, GP visit cost', 'base_case_value': '38.000', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, ambulance call-out cost', 'base_case_value': '257.000', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, A&E non-admitted cost', 'base_case_value': '84.000', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, A&E admitted cost', 'base_case_value': '195.000', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, Inpatient stay (no hip fracture)', 'base_case_value': '8018.000', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, Home discharge', 'base_case_value': '1923.000', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, short-term residential', 'base_case_value': '9101.000', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, long-term residential', 'base_case_value': '71393.000', 'distribution': '', 'standard_error': ''}, {'description': 'Hip fracture cost, first year', 'base_case_value': '14971.000', 'distribution': '', 'standard_error': '254'}, {'description': 'Hip fracture cost, subsequent years', 'base_case_value': '2260.000', 'distribution': '', 'standard_error': '90'}, {'description': 'CBT cost per patient', 'base_case_value': '£438.00', 'distribution': '', 'standard_error': ''}, {'description': 'TO cost per patient', 'base_case_value': '£281.00', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia 1st year cost, mild', 'base_case_value': '£3,478.00', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia 1st year cost, moderate', 'base_case_value': '£4,457.00', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia 1st year cost, severe', 'base_case_value': '£7,247.00', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia subsequent years cost, mild', 'base_case_value': '£4,053.00', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia subsequent years cost, moderate', 'base_case_value': '£6,026.00', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia subsequent years cost, severe', 'base_case_value': '£7,844.00', 'distribution': '', 'standard_error': ''}, {'description': 'Baseline utility CBT + TO', 'base_case_value': '0.820', 'distribution': '', 'standard_error': '0.22'}, {'description': 'Baseline utility TOA', 'base_case_value': '0.800', 'distribution': '', 'standard_error': '0.33'}, {'description': 'Baseline utility UC', 'base_case_value': '0.830', 'distribution': '', 'standard_error': '0.26'}, {'description': 'Caregiver-proxy utility mild dementia', 'base_case_value': '0.740', 'distribution': '', 'standard_error': ''}, {'description': 'Caregiver-proxy utility moderate dementia', 'base_case_value': '0.590', 'distribution': '', 'standard_error': ''}, {'description': 'Caregiver-proxy utility severe dementia', 'base_case_value': '0.360', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia, proportion mild, age 65-74', 'base_case_value': '0.179', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia, proportion moderate, age 65-74', 'base_case_value': '0.408', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia, proportion severe, age 65-74', 'base_case_value': '0.413', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia, proportion mild, age 75-84', 'base_case_value': '0.190', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia, proportion moderate, age 75-84', 'base_case_value': '0.402', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia, proportion severe, age 75-84', 'base_case_value': '0.408', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia, proportion mild, age 85+', 'base_case_value': '0.147', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia, proportion moderate, age 85+', 'base_case_value': '0.315', 'distribution': '', 'standard_error': ''}, {'description': 'Dementia, proportion severe, age 85+', 'base_case_value': '0.538', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, annual disutility after A&E attendance', 'base_case_value': '-0.014', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, annual disutility after A&E admission', 'base_case_value': '-0.144', 'distribution': '', 'standard_error': ''}, {'description': 'Fall consequence, annual disutility after discharge to residential care', 'base_case_value': '-0.060', 'distribution': '', 'standard_error': ''}, {'description': 'Annual disutility acute hip fracture', 'base_case_value': '-0.237', 'distribution': '', 'standard_error': ''}, {'description': 'Annual disutility post-hip fracture', 'base_case_value': '-0.220', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, loprazolam daily dosage', 'base_case_value': '1.500', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, loprazolam cost per mg', 'base_case_value': '£0.80', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, proportion taking loprazolam', 'base_case_value': '0.020', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, lormetazepam daily dosage', 'base_case_value': '1.500', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, lormetazepam cost per mg', 'base_case_value': '£0.71', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, proportion taking lormetazepam', 'base_case_value': '0.010', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, nitrazepam daily dosage', 'base_case_value': '7.500', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, nitrazepam cost per mg', 'base_case_value': '£0.02', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, proportion taking nitrazepam', 'base_case_value': '0.130', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, temazepam daily dosage', 'base_case_value': '15.000', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, temazepam cost per mg', 'base_case_value': '£0.01', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, proportion taking temazepam', 'base_case_value': '0.310', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, diazepam daily dosage', 'base_case_value': '22.500', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, diazepam cost per mg', 'base_case_value': '£0.01', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, proportion taking diazepam', 'base_case_value': '0.330', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, chlordiazepoxide daily dosage', 'base_case_value': '30.000', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, chlordiazepoxide cost per mg', 'base_case_value': '£0.02', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, proportion taking chlordiazepoxide', 'base_case_value': '0.010', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, lorazepam daily dosage', 'base_case_value': '2.500', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, lorazepam cost per mg', 'base_case_value': '£0.12', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, proportion taking lorazepam', 'base_case_value': '0.190', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, oxazepam daily dosage', 'base_case_value': '90.000', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, oxazepam cost per mg', 'base_case_value': '£0.02', 'distribution': '', 'standard_error': ''}, {'description': 'Benzodiazepine costs, proportion taking oxazepam', 'base_case_value': '0.010', 'distribution': '', 'standard_error': ''}]
+</available_parameters>
+
+
+================================================================================
+Assistant:
+I'll analyze the model description and parameters to create a set of events for the health economic Markov model.
+
+First, let me think through what events we need based on the model description:
+
+1. We need events for health state utilities (baseline and age-adjusted)
+2. We need events for treatment costs (one-time in first cycle)
+3. We need events for benzodiazepine costs (recurring for patients on benzodiazepines)
+4. We need events for falls and their consequences (including costs and disutilities)
+5. We need events for hip fracture costs and disutilities
+6. We need events for dementia costs and utilities
+
+Let me design a comprehensive set of events that covers all these aspects without double-counting.
+
+<event_recommendations>
+{
+    "Health State Utilities": "Calculates baseline utilities for all health states, with treatment-dependent utilities in first 2 cycles and age adjustment throughout. Includes baseline utilities for abstinent/on benzodiazepines states and separate calculations for dementia states based on severity proportions.",
+    
+    "Hip Fracture Disutilities": "Applies disutilities for patients in hip fracture acute and post-hip fracture states. Accounts for the one-time acute disutility and the ongoing post-fracture disutility.",
+    
+    "Treatment Costs": "One-time costs applied in first cycle for CBT+TO and TOA treatments. No cost for UC.",
+    
+    "Benzodiazepine Medication Costs": "Annual costs for patients in the 'on benzodiazepines' state, calculated as weighted average based on different benzodiazepine types, dosages, and costs.",
+    
+    "Falls Costs and Disutilities": "Calculates age and gender-specific fall rates, consequences, and associated costs and disutilities. Excludes hip fractures to avoid double counting. Includes costs for GP visits, ambulance call-outs, A&E attendances, admissions, and residential care.",
+    
+    "Hip Fracture Costs": "Applies first-year costs for patients in hip fracture acute state and subsequent year costs for patients in post-hip fracture state.",
+    
+    "Dementia Costs": "Calculates age-dependent costs for dementia based on severity proportions. Applies first-year costs for patients in dementia 1st year state and subsequent year costs for patients in dementia long-term state."
+}
+</event_recommendations>
+
+================================================================================

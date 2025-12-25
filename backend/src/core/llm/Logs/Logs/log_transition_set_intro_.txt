@@ -1,0 +1,60 @@
+
+================================================================================
+User:
+We are going to work together to produce transition set calculation functions for a cohort Markov model. Each TransitionSet (written using Python) calculates the transition probabilities for a SINGLE origin state for a given cycle and treatment arm. Guidance on building transition set calculation functions is provided below (see <guidance_on_building_transition_set_calculation_functions></guidance_on_building_transition_set_calculation_functions>). 
+
+<guidance_on_building_transition_set_calculation_functions>
+- You should name the transition set calculation function get_STATE_transitions, where STATE is the origin state name
+- The transition set calculation must have the signature:
+    def {function_name}(context: TransitionContext) -> TransitionSetResult:
+- The function must return:
+    TransitionSetResult(origin_state="{origin_state}", transition_set=transition_set.as_array())
+- Within the transition set calculation function, use the provided TransitionContext fields:
+    - context.origin_state (string, equals "STATE", where STATE is the origin state name)
+    - context.health_states (list (string) of all states in model)
+    - context.cycle (int)
+    - context.treatment (string)
+    - context.params (dict of parameters, see <available_parameters></available_parameters> below)
+- Do NOT hard-code parameter values, always use the parameters from the context.params dictionary, as the function must reflect the parameter value, even if they are changed
+- Use this helper to initialise the transition set
+    transition_set = NamedTransitionSet("{origin_state}", context.health_states)
+- Set explicit probabilities for any destinations other than staying in the origin state using:
+    transition_set.set("<DESTINATION_STATE>", <probability_expression>)
+- Ensure the transition_set represents probabilities (not rates). If you are given rates, convert using:
+    p = 1 - exp(-rate * cycle_length_years)
+  (cycle_length_years should come from params if needed).
+- Then call:
+    transition_set.set_stay_as_remainder()
+  This will set "{origin_state}" -> "{origin_state}" to 1 - sum(other outgoing probabilities).
+- If there are no outgoing transitions other than staying, do not set anything and just call set_stay_as_remainder().
+</guidance_on_building_transition_set_calculation_functions>
+
+A description of the model we are going to build is provided below (demarked by <model_description></model_description>). A description of the available model parameters is also provided below (demarked by <available_model_parameters></available_model_parameters>).
+
+<model_description>
+{model_description}
+</model_description>
+
+<available_model_parameters>
+{model_parameters}
+</available_model_parameters>
+
+Once you have understood all these instructions, and the model we are building, please acknowledge this. Then, I will follow up with the instructions for building the first transition set calculation function. 
+
+
+================================================================================
+Assistant:
+I've carefully read and understood the instructions for creating transition set calculation functions for a cohort Markov model. I understand that:
+
+1. Each function will calculate transition probabilities from a single origin state
+2. Functions should be named `get_STATE_transitions` where STATE is the origin state name
+3. Functions must use the provided TransitionContext and return a TransitionSetResult
+4. Parameters should never be hardcoded but accessed via context.params
+5. The NamedTransitionSet helper should be used to initialize the transition set
+6. Probabilities for destinations other than staying should be set explicitly
+7. Rates need to be converted to probabilities when necessary
+8. The stay probability should be set as the remainder
+
+I've also reviewed the model description and available parameters. I'm ready to help you build the transition set calculation functions for this model. Please provide instructions for the first transition set calculation function you'd like me to create.
+
+================================================================================

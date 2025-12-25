@@ -1,0 +1,219 @@
+
+================================================================================
+User:
+You are given a list of datapoints from a health economic model.
+
+Your task is to convert each datapoint into a model parameter with a clear, concise, and consistent name.
+
+IMPORTANT RULES:
+- Each input datapoint MUST result in exactly one output parameter.
+- Do NOT drop, merge, or duplicate datapoints.
+- Do NOT invent values or distributions. 
+- Parameter names must be:
+  - snake_case
+  - lowercase
+  - reasonably short but descriptive
+  - valid Python identifiers
+- Parameter names should reflect the *meaning* of the datapoint, not just restate the description verbatim.
+- Use standard health-economic conventions where possible (e.g. pfs_utility, death_prob_pps).
+- If a datapoint is ambiguous, still produce a parameter name, but add a short note explaining the ambiguity.
+- If you have any of the following datapoints IGNORE THESE, they will be handled separately:
+    Time horizon
+    Model cycle length
+    Discount rate for QALYs
+    Discount rate for costs
+
+INPUT DATAPOINTS:
+<datapoints>
+[
+  {
+    "description": "2-year probability of VBT revision",
+    "base_case_value": "6.02%",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "base_case_value": "1.69%",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "base_case_value": "0.22%",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "base_case_value": "1.18%",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "base_case_value": "0.19%",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Preoperative VBT and spinal fusion utility",
+    "base_case_value": "0.783",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Postoperative VBT utility",
+    "base_case_value": "92.50%",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Postoperative spinal fusion utility",
+    "base_case_value": "87.50%",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Non-device cost all procedures (index and revision)",
+    "base_case_value": "$28,616.00",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Fusion device cost",
+    "base_case_value": "$17,200.00",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "Index VBT device cost",
+    "base_case_value": "$50,615.00",
+    "distribution": "",
+    "standard_error": ""
+  },
+  {
+    "description": "VBT revision device cost",
+    "base_case_value": "$8,804.00",
+    "distribution": "",
+    "standard_error": ""
+  }
+]
+</datapoints>
+
+OUTPUT FORMAT:
+Return a JSON array. Each element must have the following fields:
+
+- parameter_name: string
+- value: number or null
+- description: string (can reuse or lightly rephrase the input description)
+- distribution: string or null
+- standard_error: number or null
+- notes: string (optional; include only if something is ambiguous)
+
+EXAMPLE OUTPUT ITEM:
+{
+  "parameter_name": "pfs_to_pps_prob",
+  "value": 0.12,
+  "description": "Per-cycle probability of progression from PFS to PPS",
+  "distribution": "beta",
+  "standard_error": 0.03
+}
+
+Return ONLY valid JSON. Do not include any explanatory text.
+
+
+================================================================================
+Assistant:
+```json
+[
+  {
+    "parameter_name": "vbt_revision_prob_2yr",
+    "value": 0.0602,
+    "description": "2-year probability of VBT revision",
+    "distribution": null,
+    "standard_error": null
+  },
+  {
+    "parameter_name": "fusion_revision_prob_q1",
+    "value": 0.0169,
+    "description": "Quarterly probability of spinal fusion revision (first quarter after prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  {
+    "parameter_name": "fusion_revision_prob_later",
+    "value": 0.0022,
+    "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  {
+    "parameter_name": "vbt_to_fusion_prob_q1",
+    "value": 0.0118,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (first quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  {
+    "parameter_name": "vbt_to_fusion_prob_later",
+    "value": 0.0019,
+    "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
+    "distribution": null,
+    "standard_error": null
+  },
+  {
+    "parameter_name": "preop_utility",
+    "value": 0.783,
+    "description": "Preoperative VBT and spinal fusion utility",
+    "distribution": null,
+    "standard_error": null
+  },
+  {
+    "parameter_name": "postop_vbt_utility",
+    "value": 0.925,
+    "description": "Postoperative VBT utility",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Value was provided as percentage (92.50%) but utility values are typically on 0-1 scale"
+  },
+  {
+    "parameter_name": "postop_fusion_utility",
+    "value": 0.875,
+    "description": "Postoperative spinal fusion utility",
+    "distribution": null,
+    "standard_error": null,
+    "notes": "Value was provided as percentage (87.50%) but utility values are typically on 0-1 scale"
+  },
+  {
+    "parameter_name": "non_device_cost",
+    "value": 28616.00,
+    "description": "Non-device cost all procedures (index and revision)",
+    "distribution": null,
+    "standard_error": null
+  },
+  {
+    "parameter_name": "fusion_device_cost",
+    "value": 17200.00,
+    "description": "Fusion device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  {
+    "parameter_name": "vbt_index_device_cost",
+    "value": 50615.00,
+    "description": "Index VBT device cost",
+    "distribution": null,
+    "standard_error": null
+  },
+  {
+    "parameter_name": "vbt_revision_device_cost",
+    "value": 8804.00,
+    "description": "VBT revision device cost",
+    "distribution": null,
+    "standard_error": null
+  }
+]
+```
+
+================================================================================
