@@ -58,7 +58,7 @@ parameters = {
         "initial_occupancy": {"PFS":1, "PPS":0, "Death":0},
         "cycle_length": 1,          # year
         "time_horizon": 30,         # years
-        "discount_rate_cost": 0.05, # 5%
+        "disc_rate_cost_annual": 0.05, # 5%
         "discount_rate_QALY": 0.05, # 5%
         "health_states": ["PFS", "PPS", "Death"],
         "treatments": ["treatment_a", "treatment_b"],
@@ -214,7 +214,7 @@ def run_markov_model(
     time_horizon: float = float(parameters["time_horizon"])  # in YEARS
     n_cycles: int = int(round(time_horizon / cycle_length))
 
-    disc_cost_annual: float = float(parameters["discount_rate_cost"])
+    disc_cost_annual: float = float(parameters["disc_rate_cost_annual"])
     disc_qaly_annual: float = float(parameters["discount_rate_QALY"])
     disc_ly_annual: float = disc_qaly_annual if discount_rate_ly is None else float(discount_rate_ly)
 
@@ -247,7 +247,7 @@ def run_markov_model(
             "time_horizon_years": time_horizon,
             "n_cycles": n_cycles,
             "discount_timing": discount_timing,
-            "discount_rate_cost_annual": disc_cost_annual,
+            "disc_rate_cost_annual": disc_cost_annual,
             "discount_rate_qaly_annual": disc_qaly_annual,
             "discount_rate_ly_annual": disc_ly_annual,
         },

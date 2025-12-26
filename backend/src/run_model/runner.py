@@ -56,7 +56,7 @@ def run_markov_model(
             "cycle_length_years": cycle_length_years,
             "time_horizon_years": time_horizon_years,
             "discount_timing": discount_timing,
-            "discount_rate_cost_annual": disc_rate_cost_annual,
+            "disc_rate_cost_annual": disc_rate_cost_annual,
             "discount_rate_qaly_annual": disc_rate_qaly_annual,
             "initial_occupancy": initial_occupancy,
         },

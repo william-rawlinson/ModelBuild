@@ -31,3 +31,9 @@ def list_model_snapshots() -> List[Dict[str, Any]]:
             continue
 
     return out
+
+if __name__ == "__main__":
+
+    model_snapshots = list_model_snapshots()
+
+    pass

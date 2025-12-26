@@ -27,12 +27,12 @@ handled by simply associating cost and QALY impacts with transitions
 
 Tunnel state naming convention (use this exactly)
 - If a state requires tunnel structure, use:
-    "<BASE_STATE>__tunnel_<k>"
-  for k = 0, 1, 2, ... for sequential cycles after entry, and then a final non-tunnel long-term state:
+    "<BASE_STATE>_tunnel_<k>" (if there is only one tunnel in total, ignore _<k>)
+  for k = 1, 2, ... for sequential cycles after entry, and then a final non-tunnel long-term state:
     "<BASE_STATE>__long_term"
 Examples:
-- "PostOp__tunnel_0", "PostOp__tunnel_1", "PostOp__long_term"
-- "Revision__tunnel_0", "Revision__long_term"
+- "PostOp_tunnel_1", "PostOp_tunnel_2", "PostOp__long_term"
+- "Revision_tunnel", "Revision_long_term"
 
 Output requirements
 1) Provide a short rationale explaining:

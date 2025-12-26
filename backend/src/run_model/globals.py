@@ -45,9 +45,7 @@ def initialise_impact(health_states: List[str]) -> EventImpact:
 @dataclass(frozen=True)
 class EventSpec:
     event_name: str
-    applies_to_treatments: Optional[Set[Treatment]] = None
     enabled: bool = True
-    tags: Set[str] = field(default_factory=set)
     calculation_function: Callable[[EventContext], EventImpact] = None
 
 

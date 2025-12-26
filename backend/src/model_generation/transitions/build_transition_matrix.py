@@ -12,6 +12,8 @@ from backend.src.core.llm.llm_log import llm_log
 from backend.dummy_data.dummy_health_states import DUMMY_HEALTH_STATES_2
 from backend.dummy_data.dummy_health_states import DUMMY_HEALTH_STATES_1
 from backend.src.model_generation.parameters.merge_additional_parameters import merge_additional_parameters_dict
+from backend.src.model_generation.transitions.templates import transitions_meta_data
+from backend.src.model_generation.events.build_events import _parse_loose_dict
 
 
 
@@ -121,16 +123,26 @@ def build_transition_matrix_workflow(
     if not final_code:
         raise ValueError("No <final_code>...</final_code> block found in LLM response.")
 
+    prompt_metadata = transitions_meta_data
+
+    resp_metadata, history = call_llm(
+        prompt=prompt_metadata,
+        image_titles=[],
+        image_b64s=[],
+        chat_history=history,
+    )
+    llm_log(chat_history=history, aspect=f"transition_matrix_metadata")
+
+    metadata = extract_between_tags(resp_metadata, "metadata", no_match_response=None)
+
+    if not metadata:
+        metadata = {"description": "None available", "assumptions": "None available"}
+    else:
+        metadata = _parse_loose_dict(text=metadata)
+
     return {
-        "final_code": final_code.strip(),
-        "additional_parameters": additional_parameters,
-        "model_parameters_augmented": model_parameters_aug,
-        "history": history,
-        "raw": {
-            "intro": resp_intro,
-            "concept": resp_concept,
-            "build": resp_build,
-        },
+        "transition_matrix_data": {"final_code": final_code.strip(), "metadata": metadata},
+        "model_parameters": model_parameters_aug,
     }
 
 # TODO add metadata on description / assumption

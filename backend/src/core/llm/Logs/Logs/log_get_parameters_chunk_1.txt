@@ -143,7 +143,7 @@ Assistant:
     "standard_error": null
   },
   {
-    "parameter_name": "fusion_revision_prob_subsequent_quarters",
+    "parameter_name": "fusion_revision_prob_subsequent",
     "value": 0.0022,
     "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
     "distribution": null,
@@ -157,7 +157,7 @@ Assistant:
     "standard_error": null
   },
   {
-    "parameter_name": "vbt_to_fusion_prob_subsequent_quarters",
+    "parameter_name": "vbt_to_fusion_prob_subsequent",
     "value": 0.0019,
     "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
     "distribution": null,

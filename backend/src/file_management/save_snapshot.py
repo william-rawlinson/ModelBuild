@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
 from backend.files.file_paths import snapshot_dir as SNAPSHOT_ROOT
+import shutil
 
+WORKING_DIRNAME = "_working"
+WORKING_NAME = "latest"  # fixed
 
 def _slugify(s: str) -> str:
     s = (s or "").strip().lower()
@@ -48,17 +51,18 @@ def save_model_bundle_snapshot(
 
     # write transition code
     transition_rel = Path("code/transition_matrix.py")
-    (base / transition_rel).write_text(bundle["transition_matrix_code"], encoding="utf-8")
+    (base / transition_rel).write_text(bundle["transition_matrix_data"]["final_code"], encoding="utf-8")
+    transition_matrix_data = {"path": str(transition_rel), "metadata": bundle["transition_matrix_data"]["metadata"]}
 
     # write events code
-    event_entries = []
-    for i, e in enumerate(bundle["events"], start=1):
+    event_data = []
+    for i, e in enumerate(bundle["event_data"], start=1):
         name = str(e["event_name"])
         metadata = e.get("metadata", {})
         slug = _slugify(name)
         rel = Path(f"code/events/{i:03d}_{slug}.py")
         (base / rel).write_text(e["final_code"], encoding="utf-8")
-        event_entries.append({"event_name": name, "path": str(rel), "metadata": metadata})
+        event_data.append({"event_name": name, "path": str(rel), "metadata": metadata})
 
     snapshot = {
         "schema_version": 1,
@@ -79,8 +83,8 @@ def save_model_bundle_snapshot(
         "parameters_rich": bundle["parameters"],
 
         "code": {
-            "transition_matrix_path": str(transition_rel),
-            "events": event_entries,
+            "transition_matrix_data": transition_matrix_data,
+            "event_data": event_data,
         },
     }
 
@@ -94,6 +98,75 @@ def save_model_bundle_snapshot(
         "snapshot_dir": str(base),
     }
 
+
+
+
+def save_working_model_bundle( # for latest model
+    *,
+    bundle: Dict[str, Any],
+    notes: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Overwrites a single working directory under SNAPSHOT_ROOT:
+      SNAPSHOT_ROOT/_working/latest/
+        snapshot.json
+        code/transition_matrix.py
+        code/events/*.py
+    """
+    created_at = datetime.now(timezone.utc).isoformat()
+
+    base = Path(SNAPSHOT_ROOT) / WORKING_DIRNAME / WORKING_NAME
+
+    # wipe existing working copy
+    if base.exists():
+        shutil.rmtree(base)
+
+    # recreate structure
+    events_dir = base / "code" / "events"
+    events_dir.mkdir(parents=True, exist_ok=True)
+
+    # write transition code
+    transition_rel = Path("code/transition_matrix.py")
+    (base / transition_rel).write_text(bundle["transition_matrix_data"]["final_code"], encoding="utf-8")
+    transition_matrix_data = {"path": str(transition_rel), "metadata": bundle["transition_matrix_data"]["metadata"]}
+
+    # write events code
+    event_data = []
+    for i, e in enumerate(bundle["event_data"], start=1):
+        name = str(e["event_name"])
+        metadata = e.get("metadata", {})
+        slug = _slugify(name)
+        rel = Path(f"code/events/{i:03d}_{slug}.py")
+        (base / rel).write_text(e["final_code"], encoding="utf-8")
+        event_data.append({"event_name": name, "path": str(rel), "metadata": metadata})
+
+    snapshot = {
+        "schema_version": 1,
+        "snapshot_id": None,                 # working copy (not a real snapshot)
+        "display_name": "Working model",
+        "created_at": created_at,
+        "parent_snapshot_id": None,
+        "notes": notes,
+
+        "model_description": bundle.get("model_description", ""),
+        "health_states": bundle["health_states"],
+        "treatments": bundle["treatments"],
+        "cycle_length_years": bundle["cycle_length_years"],
+        "time_horizon_years": bundle["time_horizon_years"],
+        "disc_rate_cost_annual": bundle["disc_rate_cost_annual"],
+        "disc_rate_qaly_annual": bundle["disc_rate_qaly_annual"],
+        "initial_occupancy": bundle["initial_occupancy"],
+        "parameters_rich": bundle["parameters"],
+
+        "code": {
+            "transition_matrix_data": transition_matrix_data,
+            "event_data": event_data,
+        },
+    }
+
+    (base / "snapshot.json").write_text(json.dumps(snapshot, indent=2), encoding="utf-8")
+
+    return {"working_dir": str(base), "created_at": created_at}
 
 
 

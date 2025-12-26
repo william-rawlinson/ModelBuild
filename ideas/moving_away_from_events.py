@@ -250,7 +250,7 @@ parameters = {
     "initial_occupancy": {"PFS": 1, "PPS": 0, "Death": 0},
     "cycle_length": 1,
     "time_horizon": 30,
-    "discount_rate_cost": 0.05,
+    "disc_rate_cost_annual": 0.05,
     "discount_rate_QALY": 0.05,
     "health_states": ["PFS", "PPS", "Death"],
     "treatments": ["treatment_a", "treatment_b"],
@@ -332,7 +332,7 @@ def run_markov_model(
 
     cycle_length = float(parameters["cycle_length"])
     time_horizon = float(parameters["time_horizon"])
-    disc_cost_annual = float(parameters["discount_rate_cost"])
+    disc_cost_annual = float(parameters["disc_rate_cost_annual"])
     disc_qaly_annual = float(parameters["discount_rate_QALY"])
 
     event_names = [e.event_name for e in event_specs if e.enabled]
@@ -370,7 +370,7 @@ def run_markov_model(
             "time_horizon_years": time_horizon,
             "n_cycles": n_cycles,
             "discount_timing": discount_timing,
-            "discount_rate_cost_annual": disc_cost_annual,
+            "disc_rate_cost_annual": disc_cost_annual,
             "discount_rate_qaly_annual": disc_qaly_annual,
         },
         "event_names": event_names,

@@ -1,133 +1,243 @@
 // src/components/model_view/ModelDiagram.jsx
-import { useMemo } from "react";
+import { useMemo, useRef, useState, useCallback } from "react";
 import StateNode from "./StateNode";
-import { indexById } from "./diagramUtils";
+import DiagramEdges from "./DiagramEdges";
 import { generateStateColorMap } from "./stateColors";
 
-function estimateNodeHeight(eventCount) {
-  const header = 66;
-  const padding = 32;
-  const tile = 54;
-  const gap = 8;
-  const empty = 24;
+import { estimateNodeHeight } from "./layout/estimateNodeHeight";
+import { computeStateLayout } from "./layout/computeStateLayout";
+import { useElementSize } from "./hooks/useElementSize";
 
-  if (eventCount === 0) return header + padding + empty;
-  return header + padding + eventCount * tile + (eventCount - 1) * gap;
-}
+import {
+  buildEventsByName,
+  computeStateEventTiles,
+  transitionsDictToEdges,
+} from "./utils/modelDiagramUtils";
 
 export default function ModelDiagram({ model, onSelectEvent }) {
-  const statesById = useMemo(() => indexById(model.states), [model.states]);
-  const eventsById = useMemo(() => indexById(model.events), [model.events]);
+  const eventData = model.event_data ?? [];
+  const transitionsDict =
+    model.transition_matrix_data?.metadata?.transitions ?? {};
+  const stateDiagram =
+    model.transition_matrix_data?.metadata?.state_diagram ?? [];
 
-  const stateColorMap = useMemo(
-    () => generateStateColorMap(model.states),
-    [model.states]
+  // selected state controls which arrows are visible
+  const [selectedState, setSelectedState] = useState(null);
+
+  // Measure the visible viewport width
+  const viewportRef = useRef(null);
+  const { width: viewportWidth } = useElementSize(viewportRef);
+
+  // Flatten state_diagram into a single ordered list (row-major)
+  const orderedStateNames = useMemo(
+    () => (stateDiagram ?? []).flat().filter(Boolean),
+    [stateDiagram]
   );
 
-  const nodeW = 280;
+  // Compute max columns in any row (for dynamic node sizing)
+  const maxCols = useMemo(() => {
+    const rows = stateDiagram ?? [];
+    const counts = rows.map((r) => (r ?? []).filter(Boolean).length);
+    return Math.max(1, ...counts);
+  }, [stateDiagram]);
 
-  const stateHeights = useMemo(() => {
+  // Dynamic node width: expands when there's space, but stays reasonable when many cols
+  const nodeWidth = useMemo(() => {
+      const minNodeW = 260;
+      const maxNodeW = 420;
+
+      // This is the only padding you’ll “guarantee” to the card edges
+      const sidePad = 24 * 2;
+
+      // Small minimum gap between nodes (still readable)
+      const minGap = 40;
+
+      const vw = viewportWidth ?? 0;
+      if (!vw) return minNodeW;
+
+      // Allocate as much width as possible to nodes, leaving only min gaps + side padding
+      const usableForNodes = vw - sidePad - (maxCols - 1) * minGap;
+
+      const ideal = usableForNodes / maxCols;
+
+      return Math.max(minNodeW, Math.min(maxNodeW, ideal));
+    }, [viewportWidth, maxCols]);
+
+
+  const eventsByName = useMemo(() => buildEventsByName(eventData), [eventData]);
+
+  // Tiles only for states we actually render
+  const stateEventTiles = useMemo(
+    () =>
+      computeStateEventTiles({
+        ordered_state_names: orderedStateNames,
+        event_data: eventData,
+      }),
+    [orderedStateNames, eventData]
+  );
+
+  // Estimated heights (fallback)
+  const estimatedHeights = useMemo(() => {
     const m = new Map();
-    for (const s of model.states) {
-      const n = model.state_event_tiles?.[s.id]?.length ?? 0;
-      m.set(s.id, estimateNodeHeight(n));
+    for (const s of orderedStateNames) {
+      const n = stateEventTiles?.[s]?.length ?? 0;
+      m.set(s, estimateNodeHeight(n));
     }
     return m;
-  }, [model.states, model.state_event_tiles]);
+  }, [orderedStateNames, stateEventTiles]);
+
+  // Measured heights from the DOM (authoritative once available)
+  const [measuredHeights, setMeasuredHeights] = useState(() => new Map());
+
+  // callback ref factory: one per state name
+  const makeMeasureRef = useCallback(
+    (stateName) => (el) => {
+      if (!el) return;
+
+      const h = el.offsetHeight || 0;
+      if (!h) return;
+
+      setMeasuredHeights((prev) => {
+        const prevH = prev.get(stateName);
+        if (prevH === h) return prev; // no change
+        const next = new Map(prev);
+        next.set(stateName, h);
+        return next;
+      });
+    },
+    []
+  );
+
+  // Effective heights: measured if available, otherwise estimated
+  const effectiveHeights = useMemo(() => {
+    const m = new Map();
+    for (const s of orderedStateNames) {
+      m.set(s, measuredHeights.get(s) ?? estimatedHeights.get(s) ?? 300);
+    }
+    return m;
+  }, [orderedStateNames, measuredHeights, estimatedHeights]);
+
+  // Layout AFTER we know heights, viewport width, and node width
+  const layoutByState = useMemo(
+    () =>
+      computeStateLayout({
+        stateDiagram,
+        stateHeights: effectiveHeights,
+        viewportWidth,
+        nodeWidth,
+      }),
+    [stateDiagram, effectiveHeights, viewportWidth, nodeWidth]
+  );
+
+  // Minimal “state objects” in diagram order
+  const states = useMemo(() => {
+    return orderedStateNames.map((name) => ({
+      name,
+      label: name,
+      layout: layoutByState.get(name) ?? { x: 80, y: 80 }, // safe fallback
+    }));
+  }, [orderedStateNames, layoutByState]);
+
+  // For faster lookups when drawing arrows
+  const stateByName = useMemo(() => {
+    const m = new Map();
+    for (const s of states) m.set(s.name, s);
+    return m;
+  }, [states]);
+
+  const stateColorMap = useMemo(
+    () =>
+      generateStateColorMap(states.map((s) => ({ id: s.name, label: s.label }))),
+    [states]
+  );
+
+  const edges = useMemo(
+    () => transitionsDictToEdges(transitionsDict),
+    [transitionsDict]
+  );
+
+  // only show edges for the selected state (outgoing only)
+  const visibleEdges = useMemo(() => {
+    if (!selectedState) return [];
+    return edges.filter((e) => e.from === selectedState);
+  }, [edges, selectedState]);
 
   const canvas = useMemo(() => {
     const margin = 200;
 
-    const maxX = Math.max(...model.states.map((s) => s.layout.x + nodeW), 0);
-
-    const maxY = Math.max(
-      ...model.states.map((s) => s.layout.y + (stateHeights.get(s.id) ?? 300)),
+    const maxX = Math.max(
+      ...states.map((s) => (s.layout?.x ?? 0) + nodeWidth),
       0
     );
 
-    return { width: maxX + margin, height: maxY + margin };
-  }, [model.states, stateHeights]);
+    const maxY = Math.max(
+      ...states.map(
+        (s) => (s.layout?.y ?? 0) + (effectiveHeights.get(s.name) ?? 300)
+      ),
+      0
+    );
+
+    // Ensure canvas is at least as wide as the viewport, so expansion is visible
+    const minW = (viewportWidth ?? 0) + 40;
+
+    return { width: Math.max(maxX + margin, minW), height: maxY + margin };
+  }, [states, effectiveHeights, viewportWidth, nodeWidth]);
 
   return (
-    <div className="relative overflow-visible rounded-2xl border bg-white">
+    <div className="rounded-2xl border bg-white">
+      {/* Scrollable viewport */}
       <div
-        className="relative"
-        style={{ width: canvas.width, height: canvas.height }}
+        ref={viewportRef}
+        className="relative overflow-auto rounded-2xl max-h-[70vh]"
       >
-        {/* Arrows */}
-        <svg
-          className="absolute inset-0"
-          width={canvas.width}
-          height={canvas.height}
+        {/* Full canvas */}
+        <div
+          className="relative"
+          style={{ width: canvas.width, height: canvas.height }}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setSelectedState(null);
+          }}
         >
-          <defs>
-              {Array.from(stateColorMap.entries()).map(([stateId, colors]) => (
-                <marker
-                  key={stateId}
-                  id={`arrow-${stateId}`}
-                  markerWidth="10"
-                  markerHeight="10"
-                  refX="9"
-                  refY="5"
-                  orient="auto"
-                  markerUnits="strokeWidth"
-                >
-                  <path
-                    d="M 0 0 L 10 5 L 0 10 z"
-                    fill={colors.arrowHex}   // 🔑 explicit colour
-                  />
-                </marker>
-              ))}
-            </defs>
-
-
-          {model.transitions.map((t) => {
-            const from = statesById.get(t.from);
-            const to = statesById.get(t.to);
-            if (!from || !to) return null;
-
-            const fromH = stateHeights.get(from.id) ?? 300;
-            const toH = stateHeights.get(to.id) ?? 300;
-
-            const x1 = from.layout.x + nodeW;
-            const y1 = from.layout.y + fromH / 2;
-            const x2 = to.layout.x;
-            const y2 = to.layout.y + toH / 2;
-
-            const dx = Math.max(60, (x2 - x1) / 2);
-            const path = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${
-              x2 - dx
-            } ${y2}, ${x2} ${y2}`;
-
-            const arrowColor =
-            stateColorMap.get(from.id)?.arrowHex ?? "#94a3b8"; // slate-400 fallback
-
-            return (
-              <path
-                key={t.id}
-                d={path}
-                stroke={arrowColor}        // 🔑 explicit colour
-                strokeWidth="2"
-                fill="none"
-                markerEnd={`url(#arrow-${from.id})`}
-              />
-            );
-          })}
-        </svg>
-
-        {/* State nodes */}
-        {model.states.map((s) => (
-          <StateNode
-            key={s.id}
-            state={s}
-            events={eventsById}
-            eventIds={model.state_event_tiles?.[s.id] ?? []}
-            onSelectEvent={onSelectEvent}
-            width={nodeW}
-            colors={stateColorMap.get(s.id)}
+          <DiagramEdges
+            edges={visibleEdges}
+            stateByName={stateByName}
+            stateHeights={effectiveHeights}
+            stateColorMap={stateColorMap}
+            canvas={canvas}
+            nodeWidth={nodeWidth}
           />
-        ))}
+
+          {/* State nodes (wrapped so we can measure the real DOM height) */}
+          {states.map((s) => (
+            <div
+              key={s.name}
+              ref={makeMeasureRef(s.name)}
+              className="absolute"
+              style={{
+                left: s.layout.x,
+                top: s.layout.y,
+                width: nodeWidth,
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <StateNode
+                state={s}
+                eventsByName={eventsByName}
+                eventNames={stateEventTiles?.[s.name] ?? []}
+                onSelectEvent={onSelectEvent}
+                onSelectState={(name) =>
+                  setSelectedState((prev) => (prev === name ? null : name))
+                }
+                isSelected={selectedState === s.name}
+                width={nodeWidth}
+                colors={stateColorMap.get(s.name)}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
+
+

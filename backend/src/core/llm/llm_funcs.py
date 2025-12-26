@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 import boto3
 import logging
 from backend.src.core.llm.llm_log import llm_log
-from  backend.src.core.llm.llm_stats import LLMStats
+from  backend.src.core.llm.llm_stats import llm_stats
 import json
 from botocore.config import Config
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 llm = os.getenv("llm")
 
-llm_stats = LLMStats()
+
 
 ##### claude models
 # claude-opus-4-20250514: $15/M input, $75/M output
@@ -163,6 +163,7 @@ def boto3_client(
 
         _CLIENTS[key] = client
     return _CLIENTS[key]
+
 
 def _call_llm_bedrock_claude(
     model_id: str,

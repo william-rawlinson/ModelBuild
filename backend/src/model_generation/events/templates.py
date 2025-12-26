@@ -44,7 +44,6 @@ def get_progression_cost_impact(context: EventContext) -> EventImpact:
 
 progression_cost_event = EventSpec(
     event_name="Progression cost",
-    tags={{"cost"}},
     calculation_function=progression_cost_event,
 )
 
@@ -57,7 +56,6 @@ def get_healthstate_utility_impact(context: EventContext) -> EventImpact:
 
 healthstate_utility_event = EventSpec(
     event_name="Health state utility",
-    tags={{"utility"}},
     calculation_function=healthstate_utility_event,
 )
 </simple_event_examples>
@@ -210,6 +208,9 @@ Requirements:
     - 'description': a brief description of the real-world mechanism/trigger the Event represents, and the cost and/or \
 QALY impact associated with the event (including what under conditions/rate this is applied)
     - 'assumptions': Any important calculation assumptions made in the Event
+    - 'applies_to_treatments': List of exact treatment names to which the event applies (e.g., for which the event has non-zero impacts)
+    - 'applies_to_states': List of exact health state names to which the event applies (e.g., for which the event has non-zero impacts)
+    - 'impact_type': 'cost' if the event has purely cost impact, 'qaly' if the event has purely qaly impact, 'both' if the event has both cost and qaly impact
 """
 
 #TODO complete

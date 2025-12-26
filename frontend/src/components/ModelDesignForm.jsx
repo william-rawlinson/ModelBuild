@@ -10,14 +10,22 @@ import SettingsSection from "./model_design/SettingsSection"; // <-- add
 
 export default function ModelDesignForm() {
   const [form, setForm] = useState({
-    intervention: "Treatment A",
-    comparators: ["Treatment B"],
-    model_description: "",
-    data_points: [],
-    // NEW settings (annual rates as decimals, WTP as currency number)
-    discount_rate_cost: 0.035,
-    discount_rate_qaly: 0.035,
-    wtp_threshold: 30000,
+  intervention: "Treatment A",
+  comparators: ["Treatment B"],
+  model_description: "",
+  data_points: [],
+
+  disc_rate_cost_annual: 0.035,
+  disc_rate_qaly_annual: 0.035,
+  wtp_threshold: 30000,
+
+  // raw inputs (needed for the unit toggles)
+  time_horizon: { value: 20, unit: "years" },
+  cycle_length: { value: 1, unit: "years" },
+
+  // derived values sent to backend
+  time_horizon_years: 20,
+  cycle_length_years: 1,
   });
 
   const payloadPreview = useMemo(() => JSON.stringify(form, null, 2), [form]);

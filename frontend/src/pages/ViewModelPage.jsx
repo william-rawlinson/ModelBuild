@@ -9,7 +9,6 @@ export default function ViewModelPage() {
 
   return (
     <div className="space-y-6">
-        <ResultsTableCard />
       <div className="space-y-1">
         <div className="text-3xl font-bold text-slate-900">View model</div>
         <div className="text-slate-600">

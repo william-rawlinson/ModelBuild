@@ -24,7 +24,7 @@ def model():
         "initial_occupancy": {"PFS":1, "PPS":0, "Death":0},
         "cycle_length": 1,          # year
         "time_horizon": 30,         # years
-        "discount_rate_cost": 0.05, # 5%
+        "disc_rate_cost_annual": 0.05, # 5%
         "discount_rate_QALY": 0.05, # 5%
         "health_states": ["PFS", "PPS", "Death"],
         "treatments": ["treatment_a", "treatment_b"],

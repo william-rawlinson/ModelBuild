@@ -18,15 +18,16 @@ class LLMStats:
             'gpt-4.1-2025-04-14': 0,
             'gpt-4-0613': 0,
             'gpt-3.5-turbo-0125': 0,
-            "bedrock:anthropic.claude-3-5-sonnet-20241022-v2:0": 0,
-            "bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0":0,
-            'bedrock:anthropic.claude-3-5-sonnet-20240620-v1:0':0,
+            "bedrock:us.anthropic.claude-3-5-sonnet-20241022-v2:0": 0,
+            "bedrock:us.anthropic.claude-3-7-sonnet-20250219-v1:0":0,
+            'bedrock:us.anthropic.claude-3-5-sonnet-20240620-v1:0':0,
         }
         self.input_tokens = {key: 0 for key in self.output_tokens}
         self.number_calls = {key: 0 for key in self.output_tokens}
         self.total_cost = 0.00
 
     def update(self, response, model):
+
         if model in self.number_calls:
             self.number_calls[model] += 1
             # Handle OpenAI models
@@ -40,6 +41,8 @@ class LLMStats:
             elif model.startswith('bedrock'):
                 self.output_tokens[model] += response["usage"]["output_tokens"]
                 self.input_tokens[model] += response["usage"]["input_tokens"]
+
+        # TODO update how this all works with the prefix
 
     def get_total_cost(self):
         cost_per_token = {
@@ -55,9 +58,9 @@ class LLMStats:
             "gpt-4.1-2025-04-14": {"input": 2/1000000, "output": 8/1000000},
             "gpt-4-0613": {"input": 30/1000000, "output": 60/1000000},
             "gpt-3.5-turbo-0125": {"input": 0.5/1000000, "output": 1.5/1000000},
-            "bedrock:anthropic.claude-3-5-sonnet-20241022-v2:0": {"input": 3/1000000, "output": 15/1000000},
-            "bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0": {"input": 3/1000000, "output": 15/1000000},
-            'bedrock:anthropic.claude-3-5-sonnet-20240620-v1:0': {"input": 3/1000000, "output": 15/1000000},
+            "bedrock:us.anthropic.claude-3-5-sonnet-20241022-v2:0": {"input": 3/1000000, "output": 15/1000000},
+            "bedrock:us.anthropic.claude-3-7-sonnet-20250219-v1:0": {"input": 3/1000000, "output": 15/1000000},
+            'bedrock:us.anthropic.claude-3-5-sonnet-20240620-v1:0': {"input": 3/1000000, "output": 15/1000000},
         }
         total_cost = 0
         for model, costs in cost_per_token.items():
@@ -95,3 +98,5 @@ Output tokens -    {output_tokens}.""")
 
     def reset(self):
         self.__init__()
+
+llm_stats = LLMStats()

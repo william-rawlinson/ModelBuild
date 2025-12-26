@@ -84,7 +84,7 @@ See provided data.
     "distribution": null,
     "standard_error": null
   },
-  "fusion_revision_prob_subsequent_quarters": {
+  "fusion_revision_prob_subsequent": {
     "value": 0.0022,
     "description": "Quarterly probability of spinal fusion revision (more than one quarter since prior spinal fusion or spinal fusion revision)",
     "distribution": null,
@@ -96,7 +96,7 @@ See provided data.
     "distribution": null,
     "standard_error": null
   },
-  "vbt_to_fusion_prob_subsequent_quarters": {
+  "vbt_to_fusion_prob_subsequent": {
     "value": 0.0019,
     "description": "Quarterly probability of index spinal fusion for VBT patients (more than one quarter after VBT index)",
     "distribution": null,
@@ -150,43 +150,44 @@ See provided data.
 
 ================================================================================
 Assistant:
-I'll design a minimal set of health states for this Markov model based on the description and available parameters.
+I'll design the minimal set of health states for this Markov model based on the description and available parameters.
 
 ## Rationale
 
 Looking at the model description and parameters, I need to capture:
 
 1. Different surgical procedures (VBT and fusion)
-2. Post-operative states with different utilities
-3. Revision states
-4. Time-dependent transition probabilities (first quarter vs. subsequent quarters)
+2. Revision states for both procedures
+3. Different transition probabilities based on time since procedure (first quarter vs. subsequent quarters)
+4. Different utilities for post-VBT vs. post-fusion states
 
-The key insight is that we need tunnel states for the post-operative periods because transition probabilities differ between the first quarter and subsequent quarters after procedures. Specifically:
-- After VBT, the probability of transitioning to fusion differs in the first quarter vs. subsequent quarters
-- After fusion, the probability of revision differs in the first quarter vs. subsequent quarters
+The key insight is that transition probabilities differ between the first quarter after a procedure and subsequent quarters, which necessitates tunnel states. Specifically:
+- After VBT index, different probabilities for revision and conversion to fusion in first quarter vs. subsequent quarters
+- After fusion (index or revision), different probabilities for revision in first quarter vs. subsequent quarters
 
-I'll create tunnel states for these post-operative periods to accurately model these time-dependent transitions.
-
-The model also mentions up to two fusion revisions before becoming ineligible for further revisions, so I'll include states for each revision level.
+I'll create tunnel states for the first quarter after each procedure, followed by long-term states. The model also needs to track up to two fusion revisions before reaching an ineligible state.
 
 ## Health States
 
 <model_health_states>
 [
   "VBT_Index",
-  "PostOp_VBT__tunnel_0",
-  "PostOp_VBT__long_term",
+  "PostVBT__tunnel_0",
+  "PostVBT__long_term",
   "VBT_Revision",
+  "PostVBT_Revision__tunnel_0",
+  "PostVBT_Revision__long_term",
   "Fusion_Index",
-  "PostOp_Fusion_Index__tunnel_0",
-  "PostOp_Fusion_Index__long_term",
-  "Fusion_Revision_1",
-  "PostOp_Fusion_Revision_1__tunnel_0",
-  "PostOp_Fusion_Revision_1__long_term",
-  "Fusion_Revision_2",
-  "PostOp_Fusion_Revision_2__tunnel_0",
-  "PostOp_Fusion_Revision_2__long_term",
-  "Ineligible_Fusion"
+  "PostFusion_Index__tunnel_0",
+  "PostFusion_Index__long_term",
+  "Fusion_Revision1",
+  "PostFusion_Revision1__tunnel_0",
+  "PostFusion_Revision1__long_term",
+  "Fusion_Revision2",
+  "PostFusion_Revision2__tunnel_0",
+  "PostFusion_Revision2__long_term",
+  "Ineligible_Fusion",
+  "Death"
 ]
 </model_health_states>
 

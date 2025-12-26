@@ -3,45 +3,68 @@ import EventTile from "./EventTile";
 
 export default function StateNode({
   state,
-  events,
-  eventIds,
+  eventsByName,
+  eventNames,
   onSelectEvent,
+  onSelectState,      // ✅ NEW
+  isSelected = false, // ✅ NEW (optional)
   colors,
   width = 280,
 }) {
   const headerStyle = colors?.headerStyle ?? {
-      backgroundColor: "#f8fafc",
-      borderColor: "#e2e8f0",
-      color: "#0f172a",
-    };
+    backgroundColor: "#f8fafc",
+    borderColor: "#e2e8f0",
+  };
 
+  const ringClass = isSelected ? "ring-2 ring-slate-400" : "";
 
   return (
-    <div
-      className="absolute"
-      style={{ left: state.layout.x, top: state.layout.y, width }}
-    >
-      <div className="rounded-2xl border bg-white shadow-sm">
-        <div className="px-4 py-3 border-b" style={headerStyle}>
-          <div className="text-xl font-bold">{state.label}</div>
-          <div className="text-sm opacity-80">
-            {eventIds.length} event{eventIds.length === 1 ? "" : "s"}
+    <div style={{ width }}>
+      <div
+        className={`rounded-2xl border bg-white shadow-sm overflow-hidden ${ringClass}`}
+        onMouseDown={(e) => {
+          // Selecting the state should not bubble to the canvas (which clears selection)
+          e.stopPropagation();
+          onSelectState?.(state.name);
+        }}
+      >
+        {/* Header */}
+        <div
+          className="px-4 py-3 border-b rounded-t-2xl cursor-pointer"
+          style={headerStyle}
+        >
+          <div
+            className="
+              text-xl font-bold text-slate-900
+              break-words whitespace-normal leading-snug
+            "
+          >
+            {state.label}
           </div>
         </div>
 
+        {/* Event tiles */}
         <div className="p-4 space-y-2">
-          {eventIds.length === 0 ? (
+          {eventNames.length === 0 ? (
             <div className="text-sm text-slate-500">No events.</div>
           ) : (
-            eventIds.map((id) => {
-              const ev = events.get(id);
+            eventNames.map((name, i) => {
+              const ev = eventsByName.get(name);
               if (!ev) return null;
+
+              const domId = `event-tile-${state.name}-${i === 0 ? "anchor" : name}`;
+
               return (
-                <EventTile
-                  key={id}
-                  event={ev}
-                  onClick={() => onSelectEvent(ev)}
-                />
+                <div
+                  key={name}
+                  id={domId}
+                  onMouseDown={(e) => {
+                    // Prevent state-selection handler above from firing when clicking tiles
+                    e.stopPropagation();
+                  }}
+                >
+                  <EventTile event={ev} onClick={() => onSelectEvent?.(ev)} />
+                </div>
               );
             })
           )}
@@ -50,4 +73,6 @@ export default function StateNode({
     </div>
   );
 }
+
+
 

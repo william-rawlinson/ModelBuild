@@ -7,12 +7,25 @@ def load_model_bundle_snapshot(snapshot_dir: str) -> Dict[str, Any]:
     base = Path(snapshot_dir)
     snap = json.loads((base / "snapshot.json").read_text(encoding="utf-8"))
 
-    transition_code = (base / snap["code"]["transition_matrix_path"]).read_text(encoding="utf-8")
+    transition_matrix_data = {}
+    transition_code = (base / snap["code"]["transition_matrix_data"]["path"]).read_text(encoding="utf-8")
+    transition_matrix_data["code"] = transition_code
+    transition_matrix_data["metadata"] = snap["code"]["transition_matrix_data"]["metadata"].read_text(encoding="utf-8")
 
-    events: List[Dict[str, Any]] = []
+    event_data: List[Dict[str, Any]] = []
     for e in snap["code"]["events"]:
+        metadata = e.get("metadata", {})
+
+        # 🔑 enabled defaults to True if missing
+        if metadata.get("enabled", True) is False:
+            continue
+
         code = (base / e["path"]).read_text(encoding="utf-8")
-        events.append({"event_name": e["event_name"], "final_code": code, "metadata": e.get("metadata", {})})
+        event_data.append({
+            "event_name": e["event_name"],
+            "final_code": code,
+            "metadata": metadata,
+        })
 
     return {
         # snapshot metadata
@@ -32,6 +45,6 @@ def load_model_bundle_snapshot(snapshot_dir: str) -> Dict[str, Any]:
         "disc_rate_qaly_annual": snap["disc_rate_qaly_annual"],
         "initial_occupancy": snap["initial_occupancy"],
         "parameters": snap["parameters_rich"],
-        "transition_matrix_code": transition_code,
-        "events": events,
+        "transition_matrix_data": transition_matrix_data,
+        "event_data": event_data,
     }

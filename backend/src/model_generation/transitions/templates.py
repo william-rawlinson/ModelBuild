@@ -80,3 +80,20 @@ Return your final code within <final_code></final_code> tags. Please note, to ac
 to use the variable name (e.g., params[variable_name], you must not try to access values using 'params[variable_name]["value"]' as the parameters \
 dictionary will be flattened.
 """
+
+transitions_meta_data = """Brilliant. Now we are going to generate some helpful metadata for the transition matrix. 
+
+Requirements:
+- Always include the metadata within <metadata></metadata> tags.
+- Include only a JSON within the <metadata> tags
+- the JSON should have the fields:
+        - 'description': Describe the patient flow through the model in terms of possible transitions, and the approach used to calculate the transitions
+    - 'assumptions': Any important assumptions made in calculating the transitions
+    - 'transitions': A dictionary with keys that match exactly each and every health state name. The values are the exact health \
+states names for which a transition is possible from the key health state.  YOU MUST INCLUDE EVERY HEALTH STATE AS A KEY.
+    - 'state_diagram': A list of lists, each sublist is one 'row' of a state diagram, and the content of each sublist \
+are the exact health state names of the health states that should occupy that row. Used to order the health states \
+in the diagram in a sensible, logical way, to make interpretation of the diagram easy
+"""
+
+
